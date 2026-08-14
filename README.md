@@ -79,6 +79,7 @@ JUN_UE/
 ├─ Docs/
 │  ├─ 00_UE_Tool_Plugin_Guide.md # 설계 가이드 · 판단 근거 · 함정
 │  ├─ 01_Junction_Guide.md       # junction 이란 / 복사 대신 링크로 잇기
+│  ├─ WORKLOG.md                 # 작업 일지 (최신이 위)
 │  └─ Tools/                     # 툴별 문서
 └─ Content/Python/
    ├─ init_unreal.py             # 에디터 부팅 훅 (자동 실행)
