@@ -158,26 +158,71 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 
 ## 6. 프로젝트에 붙이는 방법
 
-### 방법 A — junction (개인 작업 / 여러 프로젝트에서 동시에 쓸 때, 권장)
+**플러그인은 프로젝트의 `Plugins/` 폴더 안에 있어야만 하는 것이 아니다.**
+프로젝트마다 사본을 만들면 고칠 때마다 N군데를 다시 복사해야 하고, 어느 사본이 최신인지
+알 수 없게 된다. 아래 순서대로 검토한다.
+
+### 방법 A — `UE_ADDITIONAL_PLUGIN_PATHS` 환경변수 (개인 작업, **최선**)
+
+PC에 **한 번만** 설정하면 그 PC의 **모든 프로젝트**가 자동으로 플러그인을 인식한다.
+프로젝트 파일을 하나도 건드리지 않으므로, 회사 프로젝트에 개인 툴의 흔적이 남지 않는다.
+
+```powershell
+# 1) 플러그인을 모아둘 전용 폴더를 만들고 저장소를 junction 으로 건다
+New-Item -ItemType Directory -Force "C:\UE_Plugins"
+cmd /c mklink /J "C:\UE_Plugins\JUNTools" "C:\Users\USER\Desktop\JP\0030_maya_python_JUN\JUN_UE"
+
+# 2) 사용자 환경변수로 등록 (한 번만). 여러 경로는 세미콜론으로 구분
+setx UE_ADDITIONAL_PLUGIN_PATHS "C:\UE_Plugins"
+```
+
+에디터를 새로 켜면 로그에 `LogPluginManager: Mounting External plugin JUNTools` 가 찍힌다.
+
+- 엔진 소스의 설명 그대로 **"DCC 파이프라인에서 플러그인을 스테이징하는 용도"** 로 만들어진 기능이다
+- **에디터 전용**(`WITH_EDITOR`)이라 패키징된 게임에는 아무 영향이 없다
+- 환경변수는 **에디터 시작 시 한 번** 읽는다 → 값을 바꿨으면 에디터를 재시작한다
+- 지정한 경로는 **플러그인들을 담는 상위 폴더**다. 큰 트리를 가리키면 스캔 비용이 커지므로
+  전용 폴더를 따로 파는 편이 좋다
+- 프로젝트별 스위치가 필요하면 커맨드라인 `-PLUGIN=<경로>` 도 같은 일을 한다
+
+### 방법 B — junction (그 프로젝트에서만 쓰고 싶을 때)
 
 ```powershell
 cmd /c mklink /J "<Project>\Plugins\JUNTools" "C:\Users\USER\Desktop\JP\0030_maya_python_JUN\JUN_UE"
 ```
 
-원본이 하나이므로 프로젝트마다 사본이 갈라지지 않는다.
+원본이 하나이므로 사본이 갈라지지는 않지만, 프로젝트마다 걸어줘야 하고
+**버전 관리 대상 폴더 안에 들어간다**는 부담이 있다.
 
-### 방법 B — git submodule (팀과 공유하는 프로젝트)
+### 방법 C — git submodule (팀과 함께 쓰는 플러그인이 됐을 때)
 
 ```bash
 git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 ```
 
+### 방법 D — 복사·붙여넣기 ❌
+
+첫 동작 확인용으로는 괜찮지만 상시 방식으로는 쓰지 않는다.
+고칠 때마다 프로젝트 수만큼 다시 복사해야 하고, 사본이 원본보다 앞서거나 뒤처져도 알 수가 없다.
+
+### ⚠️ 같은 플러그인이 두 곳에서 발견되면
+
+`Plugins/` 안의 사본과 환경변수 경로에 **같은 이름의 플러그인이 동시에 존재하면**
+엔진은 그중 하나만 채택한다. 어느 쪽이 살아 있는지 알기 어려워지므로,
+방법 A로 옮길 때는 **프로젝트 안의 사본을 먼저 지운다.**
+
 ### ⚠️ MANUProject에 붙일 때
 
 - `MANUProject`는 **SVN(전체) + Git(Source/Config/Plugins) 이중 관리**다
-- `Plugins/` 아래에 개인 저장소를 junction으로 걸면 **SVN이 링크를 따라가 통째로 커밋할 위험**이 있다
-- 붙이기 **전에** `svn:ignore` / `.gitignore`에 `JUNTools`를 등록할 것
+- `Plugins/` 아래에 개인 플러그인을 두면(사본이든 junction이든) **버전 관리에 딸려 올라갈 위험**이 있다
+- 그래서 이 프로젝트에서는 **방법 A(환경변수)가 특히 유리하다** — `Plugins/`를 아예 건드리지 않는다
+- 굳이 `Plugins/` 안에 둔다면 **먼저** `svn:ignore` / `.gitignore`에 등록할 것
 - 사내 프로젝트에 개인 저장소를 얹는 것은 정책 확인이 필요한 사안이기도 하다
+
+### 폴더 이름
+
+플러그인 식별자는 **`.uplugin` 파일 이름**이므로 담는 폴더 이름은 `JUN`이든 뭐든 동작한다.
+다만 나중에 헷갈리므로 폴더도 `JUNTools`로 맞춰 두는 편이 좋다.
 
 ### 활성화
 

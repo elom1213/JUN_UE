@@ -13,26 +13,44 @@ Unreal Engine 5.7+ 에디터 툴 모음 플러그인. **이 저장소의 루트�
 
 ---
 
-## 설치
+## 설치 — PC에 한 번만 (권장)
 
-프로젝트의 `Plugins/` 아래에 `JUNTools`라는 이름으로 배치한다.
+프로젝트마다 복사할 필요가 없다. `UE_ADDITIONAL_PLUGIN_PATHS` 환경변수를 한 번 걸어두면
+**그 PC의 모든 UE 프로젝트**가 이 플러그인을 인식한다. 프로젝트 파일은 하나도 건드리지 않는다.
 
-**junction (개인 작업, 권장)**
+```powershell
+# 1) 플러그인 스테이징 폴더 + 이 저장소로 향하는 junction
+New-Item -ItemType Directory -Force "C:\UE_Plugins"
+cmd /c mklink /J "C:\UE_Plugins\JUNTools" "C:\Users\USER\Desktop\JP\0030_maya_python_JUN\JUN_UE"
+
+# 2) 사용자 환경변수 등록 (여러 경로는 `;` 로 구분)
+setx UE_ADDITIONAL_PLUGIN_PATHS "C:\UE_Plugins"
+```
+
+에디터를 새로 켜면 로그에 `LogPluginManager: Mounting External plugin JUNTools` 가 찍힌다.
+환경변수는 시작 시 한 번 읽으므로 값을 바꿨다면 에디터를 재시작한다.
+
+**그 프로젝트에서만 쓰려면** — `Plugins/` 아래에 junction:
 ```powershell
 cmd /c mklink /J "<Project>\Plugins\JUNTools" "C:\Users\USER\Desktop\JP\0030_maya_python_JUN\JUN_UE"
 ```
 
-**git submodule (팀 공유 프로젝트)**
+**팀과 공유하는 프로젝트라면** — submodule:
 ```bash
 git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 ```
+
+복사·붙여넣기는 첫 동작 확인용으로만. 사본은 원본과 갈라진다.
 
 에디터를 켜면 자동으로 마운트된다(`"EnabledByDefault": true`).
 안 보이면 **Edit > Plugins**에서 `JUN Tools`를 체크하고 재시작한다.
 의존 플러그인(`PythonScriptPlugin`, `EditorScriptingUtilities`)은 함께 켜진다.
 
-> ⚠️ SVN/Perforce로 관리되는 프로젝트에 junction을 걸 때는 **먼저** `svn:ignore` / `.gitignore`에
-> `JUNTools`를 등록할 것. 안 그러면 개인 플러그인이 통째로 커밋될 수 있다.
+> ⚠️ 같은 이름의 플러그인이 `Plugins/` 사본과 환경변수 경로에 **동시에 있으면** 엔진은 하나만
+> 채택한다. 환경변수 방식으로 옮길 때는 프로젝트 안의 사본을 먼저 지울 것.
+
+> ⚠️ SVN/Perforce로 관리되는 프로젝트의 `Plugins/` 아래에 둘 때는 **먼저** `svn:ignore` /
+> `.gitignore`에 등록할 것. 안 그러면 개인 플러그인이 통째로 커밋될 수 있다.
 
 ---
 

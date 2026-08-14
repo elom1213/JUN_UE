@@ -1,5 +1,17 @@
 # CHANGELOG — JUNTools
 
+## Docs (2026-08-14)
+
+### Changed
+- 배포 방식 정리. 프로젝트마다 복사·붙여넣기 대신 **`UE_ADDITIONAL_PLUGIN_PATHS` 환경변수**를
+  1순위로 문서화 (README / 가이드 6장). PC에 한 번 걸면 모든 프로젝트가 인식하고
+  프로젝트 파일을 건드리지 않는다 — SVN+Git 이중 관리인 MANUProject 에서 특히 유리.
+- 같은 이름 플러그인이 두 곳에서 발견될 때의 주의, 폴더 이름과 `.uplugin` 이름의 관계 추가.
+
+### Verified
+프로젝트 `Plugins/` 를 **완전히 비운 상태**에서 환경변수만으로 로드되는 것을 헤드리스로 확인.
+`LogPluginManager: Mounting External plugin JUNTools` → 15/15 통과.
+
 ## v01.00 (2026-08-14)
 
 최초 버전. 플러그인 골격 + 테스트 툴 1개.
