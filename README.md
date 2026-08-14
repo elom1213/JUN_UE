@@ -30,6 +30,8 @@ setx UE_ADDITIONAL_PLUGIN_PATHS "C:\UE_Plugins"
 에디터를 새로 켜면 로그에 `LogPluginManager: Mounting External plugin JUNTools` 가 찍힌다.
 환경변수는 시작 시 한 번 읽으므로 값을 바꿨다면 에디터를 재시작한다.
 
+> `mklink /J`(junction)가 무엇이고 왜 복사보다 나은지는 **[Docs/01_Junction_Guide.md](Docs/01_Junction_Guide.md)** 참고.
+
 **그 프로젝트에서만 쓰려면** — `Plugins/` 아래에 junction:
 ```powershell
 cmd /c mklink /J "<Project>\Plugins\JUNTools" "C:\Users\USER\Desktop\JP\0030_maya_python_JUN\JUN_UE"
@@ -74,6 +76,7 @@ JUN_UE/
 ├─ JUNTools.uplugin              # 플러그인 식별자 (이름 변경 금지)
 ├─ Docs/
 │  ├─ 00_UE_Tool_Plugin_Guide.md # 설계 가이드 · 판단 근거 · 함정
+│  ├─ 01_Junction_Guide.md       # junction 이란 / 복사 대신 링크로 잇기
 │  └─ Tools/                     # 툴별 문서
 └─ Content/Python/
    ├─ init_unreal.py             # 에디터 부팅 훅 (자동 실행)

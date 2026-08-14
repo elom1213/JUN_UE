@@ -1,5 +1,12 @@
 # CHANGELOG — JUNTools
 
+## Docs (2026-08-14) — junction
+
+### Added
+- `Docs/01_Junction_Guide.md` — junction 이 무엇인지, 복사·바로가기와 무엇이 다른지,
+  만들기/확인/**안전하게 지우기**, 버전 관리(SVN/Perforce)와의 충돌 주의.
+  README / 설계 가이드 6장에서 링크.
+
 ## Docs (2026-08-14)
 
 ### Changed

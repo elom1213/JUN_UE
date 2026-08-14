@@ -167,6 +167,8 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 PC에 **한 번만** 설정하면 그 PC의 **모든 프로젝트**가 자동으로 플러그인을 인식한다.
 프로젝트 파일을 하나도 건드리지 않으므로, 회사 프로젝트에 개인 툴의 흔적이 남지 않는다.
 
+> junction 이 무엇인지, 왜 복사보다 나은지는 **[01_Junction_Guide.md](01_Junction_Guide.md)** 참고.
+
 ```powershell
 # 1) 플러그인을 모아둘 전용 폴더를 만들고 저장소를 junction 으로 건다
 New-Item -ItemType Directory -Force "C:\UE_Plugins"
