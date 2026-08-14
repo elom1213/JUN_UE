@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "01.00",
+	"FriendlyName": "JUN Tools",
+	"Description": "Personal editor tool suite. Python-first, no compilation required. Tools > JUN.",
+	"Category": "Editor",
+	"CreatedBy": "Ji Hun Park (Junny)",
+	"CreatedByURL": "https://github.com/elom1213/JUN_UE",
+	"DocsURL": "https://github.com/elom1213/JUN_UE/tree/main/Docs",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"EnabledByDefault": true,
+	"Plugins": [
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		}
+	]
+}

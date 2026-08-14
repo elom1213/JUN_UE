@@ -1,0 +1,19 @@
+# --- Unreal build artifacts (플러그인 소스만 추적한다) ---
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- IDE / OS ---
+.vs/
+*.sln
+*.suo
+*.VC.db
+.vscode/
+Thumbs.db
+desktop.ini
