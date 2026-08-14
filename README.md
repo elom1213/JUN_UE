@@ -63,6 +63,8 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 | 섹션 | 항목 | 설명 |
 |------|------|------|
 | Test | Hello Tool | 팝업을 띄우고 OK를 누르면 Output Log에 `Hello`를 출력 ([문서](Docs/Tools/A00500_HelloTool.md)) |
+| Animation | Bone Display Settings... | 스켈레탈 메시 뷰포트 본 표시 설정 팝업 ([문서](Docs/Tools/A00510_BoneViewport.md)) |
+| Animation | Show All Bones | 눈 아이콘 > Bones > All Hierarchy 를 클릭 한 번으로 |
 | Developer | Reload JUN Tools | 에디터 재시작 없이 전체 파이썬 모듈 재로드 |
 
 로그는 **Output Log**의 `LogPython` 카테고리에서 확인한다.

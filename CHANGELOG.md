@@ -1,5 +1,28 @@
 # CHANGELOG — JUNTools
 
+## v01.01 (2026-08-14)
+
+### Added
+- `A00510_bone_viewport` — 스켈레탈 메시 뷰포트 본 표시 설정.
+  - `Show All Bones` : 눈 아이콘 > Bones > All Hierarchy 3단계를 메뉴 클릭 한 번으로
+  - `Bone Display Settings...` : Bone Draw Mode 드롭다운 + Show Bone Colors 체크박스 팝업
+  - 파이썬 `@unreal.uenum()` / `@unreal.uclass()` + `EditorDialog.show_object_details_view()` 로
+    C++ 없이 드롭다운·체크박스 위젯을 만드는 패턴 확립
+- `ToolSpec.package` — 한 툴이 메뉴 항목을 여러 개 가질 때 DEV_MODE 리로드가 참조할 폴더.
+
+### Known limitation
+**Bone Draw Size 는 넣지 못했다.** `FAnimationViewportClient::BoneDrawSize` 는 `UPROPERTY` 도
+`UFUNCTION` 도 아닌 평범한 C++ 멤버라 리플렉션이 없다 → 파이썬에서 접근 불가.
+C++ 에디터 모듈이 있어야 한다(`IPersonaViewport::GetViewportClient()` → `SetBoneDrawSize()`).
+자세한 내용은 `Docs/Tools/A00510_BoneViewport.md`.
+
+또한 파이썬에는 `SaveConfig()` 가 없어 설정이 **이번 에디터 세션 동안만** 유지되고,
+이미 열려 있는 뷰포트는 본 선택을 한 번 바꿔야 갱신된다(엔진이 그릴 본 목록을 캐시하기 때문).
+
+### Verified
+헤드리스 19/19 통과 — 모드 읽기/쓰기 왕복, quick 액션, 다이얼로그 3회 연속 실행
+(DEV_MODE 리로드로 uclass/uenum 이 재등록돼도 에러 없음).
+
 ## Docs (2026-08-14) — junction
 
 ### Added

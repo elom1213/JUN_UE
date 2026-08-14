@@ -2,7 +2,7 @@
 # Python Script by Ji Hun Park
 # last Update date : 2026-08-14
 
-VERSION = "v01.00"
+VERSION = "v01.01"
 LAST_UPDATE = "2026-08-14"
 
 # 플러그인 식별자. .uplugin 파일 이름과 반드시 같아야 한다.
