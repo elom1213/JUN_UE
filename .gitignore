@@ -17,3 +17,6 @@ __pycache__/
 .vscode/
 Thumbs.db
 desktop.ini
+
+# Claude Code - PC 별 개인 설정
+.claude/settings.local.json
