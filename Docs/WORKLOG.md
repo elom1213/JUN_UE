@@ -2,7 +2,7 @@
 title: 작업 일지 (WORKLOG) — Unreal
 aliases: [WORKLOG, 작업일지, devlog, UE 작업일지]
 tags: [worklog, unreal, unreal-python]
-updated: 2026-08-14
+updated: 2026-08-24
 ---
 
 # 작업 일지 (WORKLOG) — Unreal
@@ -16,7 +16,44 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ---
 
-## 2026-08-14 (오늘)
+## 2026-08-24 (오늘)
+
+> [!summary] `A00520_cinematic_sequence_builder` **시네마틱 시퀀서 구조 생성** (v01.01→01.02)
+- **먼저 조사부터 했다.** 사내 워크스페이스(`docs/`, `MANUProject/Docs/`, `MANUEditor` 플러그인
+  소스 65개, Content 전체 EUW/EUB)를 훑어 **마스터/서브 시퀀서를 만드는 툴이 없다**는 것을 확인했다.
+  `LevelSequenceFactoryNew|MovieSceneSubSection|MovieSceneCinematicShotTrack` grep 히트 0건.
+  규격 문서는 있다 — `docs/DnableSOP/007 Cinematic/001 Key Base.md` 가 사실상 스펙이다.
+- **구조는 문서가 아니라 `.uasset` 바이너리에서 직접 읽어 확정했다.** MSEQ 는
+  `CinematicShotTrack`(CSEQ 13개) + `SubTrack`(씬 SSEQ 7개), CSEQ 는 `SubTrack`(컷 SSEQ 7개)
+  + `CameraCutTrack` + `MovieSceneFolder`/`FolderColor`. SSEQ 는 3.2KB 짜리 **빈 시퀀스**.
+  문서와 실제 에셋이 일치했다.
+- **프로토타입(`seq_batch_tool_ue57.py`, 386줄)을 API 검증 자산으로 흡수했다.** 그 파일의 가치는
+  기능이 아니라 **5.7 바인딩을 실제로 통과한 호출 조합**에 있다. 특히 `_call_first_working` —
+  `add_master_track` 이 버전에 따라 없다는 걸 이미 겪고 처리해 둔 폴백 패턴을 `compat.py` 로
+  분리했다. 엔진이 올라가면 고칠 곳이 이 파일 하나다.
+- **CAM 셋업을 목표로 승격했다.** 프로토타입이 만드는 카메라 구조를 실측
+  `SSEQ_..._C0010_CAM.uasset` 과 대조하니 스포너블 CineCameraActor · CameraCut ·
+  Transform ×2 · Float ×3(`CurrentAperture`/`CurrentFocalLength`/`FocusSettings:ManualFocusDistance`)
+  까지 **프로퍼티 경로가 전부 일치**했다. 아티스트가 손으로 하던 초기 셋업 그대로라 툴이 해도 된다.
+- **프로토타입의 결함 11개를 정리하고 고쳤다.** 존재 확인 없음(재실행 시 `_1`,`_2` 누적) /
+  트랜잭션 없음 / dry-run 없음 / 진행률 없음 / `save_directory(recursive)` 로 남의 더티 에셋까지
+  저장 / 모든 섹션이 `set_range(0, n)` 이라 마스터에서 컷이 전부 겹침 / 마스터에 샷을 안 넣음
+  (그 줄이 주석 처리돼 있었다) / `replace()` 로 이름 역파싱.
+- **네이밍은 `MANU_` 를 코드에서 뺐다.** 접두 부분은 UI 의 `Name Stem` 자유 입력이다.
+  근거는 실제 사고 — 같은 CT 안에서 `MANU_` 유무가 갈리고, `S02` 폴더의 마스터·SSEQ 7개가
+  전부 `_S01_` 로 잘못 들어가 있다. "정답 이름"을 툴이 정하는 대신 **한 번 정한 stem 을 씬 전체
+  100여 개 에셋에 일관 적용**하는 쪽으로 풀었다. 씬 안에서 이름이 갈리는 사고가 구조적으로 불가능해진다.
+- `Validate` 모드는 그래서 정답 stem 을 강요하지 않는다. **씬 안에서 stem 이 하나로 통일됐는지**만
+  본다 — 그것만으로 위 `S02` 사고가 잡힌다.
+- 이름 규칙은 코드에 한 글자도 없다. 전부 `Config/jun_cinematic_sop.json`.
+  SOP 문서가 시네마틱 Prefix 를 *"추후 확정 예정"* 으로 못박고 있어서다.
+- **아직 헤드리스 실측을 돌리지 않았다.** 미확인 3건(`CinematicShotTrack`, 폴더 컬러, 트랙 틴트)은
+  `Docs/verify/verify_sequencer_api.py` 로 확인해야 한다. 셋 다 없을 때의 폴백은 코드에 넣어 뒀다.
+- 계획서: `Docs/Plans/A00520_CinematicSequenceBuilder_Plan.md` (rev.2) #A00520
+
+---
+
+## 2026-08-14
 
 > [!summary] `A00510_bone_viewport` **스켈레탈 메시 뷰포트 본 표시 설정** (v01.00→01.01) `8cbab30`
 - 본 크기를 정할 때마다 **눈 아이콘 > Bones > All Hierarchy** 를 타고 들어가야 하는 불편에서 출발.

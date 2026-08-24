@@ -4,7 +4,7 @@ Unreal Engine 5.7+ 에디터 툴 모음 플러그인. **이 저장소의 루트�
 
 - **Author**: Ji Hun Park (Junny / `Dnable_JunnyPark`)
 - **Plugin name**: `JUNTools` (`JUNTools.uplugin`)
-- **Version**: v01.00
+- **Version**: v01.02
 - **Engine**: UE 5.7 이상 / 검증 빌드 `MANU_Engine_Prebuilt` 5.7.4
 - **C++ 컴파일 불필요** — Python 콘텐츠 플러그인
 
@@ -65,6 +65,8 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 | Test | Hello Tool | 팝업을 띄우고 OK를 누르면 Output Log에 `Hello`를 출력 ([문서](Docs/Tools/A00500_HelloTool.md)) |
 | Animation | Bone Display Settings... | 스켈레탈 메시 뷰포트 본 표시 설정 팝업 ([문서](Docs/Tools/A00510_BoneViewport.md)) |
 | Animation | Show All Bones | 눈 아이콘 > Bones > All Hierarchy 를 클릭 한 번으로 |
+| Cinematic | Cinematic Sequence Builder... | 씬 하나의 MSEQ / CSEQ / SSEQ 구조를 SOP 규격대로 일괄 생성 ([문서](Docs/Tools/A00520_CinematicSequenceBuilder.md)) |
+| Cinematic | Validate Cinematic Structure | 선택한 씬 폴더를 SOP 와 대조해 리포트만 낸다 (쓰기 없음) |
 | Developer | Reload JUN Tools | 에디터 재시작 없이 전체 파이썬 모듈 재로드 |
 
 로그는 **Output Log**의 `LogPython` 카테고리에서 확인한다.
@@ -76,11 +78,15 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 ```
 JUN_UE/
 ├─ JUNTools.uplugin              # 플러그인 식별자 (이름 변경 금지)
+├─ Config/                       # 툴이 읽는 규격 데이터 (코드에 규칙을 박지 않는다)
+│  └─ jun_cinematic_sop.json     #   A00520 — 이름 템플릿 · SSEQ 7종 · SOP 컬러코드
 ├─ Docs/
 │  ├─ 00_UE_Tool_Plugin_Guide.md # 설계 가이드 · 판단 근거 · 함정
 │  ├─ 01_Junction_Guide.md       # junction 이란 / 복사 대신 링크로 잇기
 │  ├─ WORKLOG.md                 # 작업 일지 (최신이 위)
-│  └─ Tools/                     # 툴별 문서
+│  ├─ Plans/                     # 제작 계획서 · 참고 프로토타입
+│  ├─ Tools/                     # 툴별 문서
+│  └─ verify/                    # 헤드리스 검증 스크립트
 └─ Content/Python/
    ├─ init_unreal.py             # 에디터 부팅 훅 (자동 실행)
    └─ jun_tools/
