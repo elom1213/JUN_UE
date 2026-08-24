@@ -1,5 +1,42 @@
 # CHANGELOG — JUNTools
 
+## v01.02 (2026-08-24)
+
+### Added
+- `A00520_cinematic_sequence_builder` — MSEQ / CSEQ / SSEQ 시퀀서 3계층 일괄 생성.
+  - `Cinematic Sequence Builder...` : 씬 하나의 폴더 + 마스터 + 컷 + 역할별 서브시퀀스 7종을
+    한 번에 만들고 SubTrack / CinematicShotTrack 으로 결선. 컷은 마스터 타임라인에 **누적
+    오프셋으로 순차 배치**된다.
+  - `Validate Cinematic Structure` : 기존 씬을 SOP 와 대조해 리포트만 낸다. 쓰기 없음.
+  - CAM 서브시퀀스에 CineCamera 초기 셋업(스포너블 카메라 + 카메라 컷 + Transform ×2 +
+    FocalLength / Aperture / ManualFocusDistance) 자동 생성. 실측 에셋과 프로퍼티 경로까지 일치.
+  - **비파괴 · 멱등** — 생성 전 전수 존재 확인, 이미 있으면 결선만 보수. 두 번 돌려도 안전.
+  - **Dry Run 우선** — 만들어질 이름 전체를 Output Log 에 찍고 확인을 받은 뒤 생성.
+  - 우리가 만들었거나 결선한 에셋만 저장한다. 경로 아래를 통째로 저장하지 않는다.
+- `Config/jun_cinematic_sop.json` — 이름 템플릿 · SSEQ 7종 · SOP 컬러코드 · 카메라 트랙 ·
+  프레임레이트. **코드에 이름 규칙이 한 글자도 없다.** `<Project>/Config/` 에 두면 덮어쓴다.
+- `compat.py` — 엔진 버전별 Python 바인딩 차이를 후보 목록으로 흡수. 5.8 로 올라가 API 가
+  갈리면 고칠 곳이 이 파일 하나다.
+- `Docs/verify/verify_sequencer_api.py` — 헤드리스 검증 스크립트.
+- `.uplugin` 의존 플러그인에 `SequencerScripting` 추가 (`MovieSceneSequenceExtensions` 등이 여기 있다).
+- `registry.SECTION_ORDER` 에 `Cinematic` 섹션.
+
+### Naming decision
+마스터 이름에 `MANU_` 를 **코드에도 설정 기본값에도 넣지 않았다.** 접두 부분은 UI 의
+`Name Stem` 텍스트 필드에 사용자가 직접 친다 (`PreDebut_TSR_CT01` / `MANU_PreDebut_TSR_CT01`).
+툴은 이 문자열을 해석하지 않고 템플릿에 그대로 끼운다.
+근거: 실제 `Teaser/CT01` 에서 씬마다 `MANU_` 유무가 갈렸고, `S02` 는 폴더가 S02 인데 에셋 이름이
+전부 `_S01_` 이었다. "정답 이름"을 툴이 정하는 대신 **한 번 정한 stem 을 씬 전체에 일관 적용**하는
+쪽으로 풀었다. 마지막 입력값은 `Saved/JUNTools/a00520_last.json` 에 기억한다.
+
+### Known limitation
+**아직 헤드리스 실측을 돌리지 않았다.** 미확인 3건 — `MovieSceneCinematicShotTrack`,
+시퀀서 폴더 컬러, 트랙 틴트. 셋 다 없으면 각각 SubTrack 폴백 / 컬러 생략으로 계속 진행하고
+경고를 남기게 해 두었지만, ShotTrack 폴백은 마스터 구조가 실측과 달라지므로 확인이 필요하다.
+에셋 생성은 `ScopedEditorTransaction` 안에 있어도 Ctrl+Z 로 되돌아가지 않을 수 있다.
+컷별 길이 지정(균등 길이만 지원) · ML/SL 레벨 생성 · 기존 이름 자동 리네임은 범위 밖.
+콘텐츠 타입 약어(`Teaser`→`TSR`) 정본은 확인 중이라 `content_types` 를 비워 두었다.
+
 ## v01.01 (2026-08-14)
 
 ### Added

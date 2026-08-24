@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # Python Script by Ji Hun Park
-# last Update date : 2026-08-14
+# last Update date : 2026-08-24
 
-VERSION = "v01.01"
-LAST_UPDATE = "2026-08-14"
+VERSION = "v01.02"
+LAST_UPDATE = "2026-08-24"
 
 # 플러그인 식별자. .uplugin 파일 이름과 반드시 같아야 한다.
 # (에셋 마운트 경로 `/JUNTools/...` 가 여기서 나오므로 변경 금지)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Python Script by Ji Hun Park
-# last Update date : 2026-08-14
+# last Update date : 2026-08-24
 #
 # 툴 목록(레지스트리).
 #
@@ -28,7 +28,7 @@ class ToolSpec(object):
 
 
 # 섹션 표시 순서. 여기 없는 섹션은 뒤에 알파벳 순으로 붙는다.
-SECTION_ORDER = ["Test", "Rigging", "Animation", "Asset"]
+SECTION_ORDER = ["Test", "Rigging", "Animation", "Cinematic", "Asset"]
 
 
 TOOLS = [
@@ -56,6 +56,25 @@ TOOLS = [
         entry="quick_show_all",
         section="Animation",
         tooltip="Set bone draw mode to All Hierarchy right away, without a dialog.",
+    ),
+    ToolSpec(
+        tool_id="A00520_cinematic_sequence_builder",
+        label="Cinematic Sequence Builder...",
+        module="jun_tools.tools.A00520_cinematic_sequence_builder.ui",
+        entry="show",
+        section="Cinematic",
+        tooltip="Create the MSEQ / CSEQ / SSEQ sequencer structure for one scene, "
+                "wired and named to the SOP.",
+    ),
+    ToolSpec(
+        tool_id="A00520_cinematic_validate",
+        package="A00520_cinematic_sequence_builder",
+        label="Validate Cinematic Structure",
+        module="jun_tools.tools.A00520_cinematic_sequence_builder.ui",
+        entry="validate_selected",
+        section="Cinematic",
+        tooltip="Check the scene folder selected in the Content Browser against the SOP. "
+                "Creates and changes nothing.",
     ),
 ]
 

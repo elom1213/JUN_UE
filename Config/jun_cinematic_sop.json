@@ -1,0 +1,53 @@
+{
+  "_comment": "A00520 Cinematic Sequence Builder - SOP spec data. Source: docs/DnableSOP/007 Cinematic/001 Key Base.md. Override per project with <Project>/Config/jun_cinematic_sop.json (shallow-merged per top-level key).",
+  "version": 2,
+
+  "name_templates": {
+    "master": "MSEQ_{stem}_{scene}",
+    "cut": "CSEQ_{stem}_{scene}_{cut}",
+    "scene_sub": "SSEQ_{stem}_{scene}_{type}",
+    "cut_sub": "SSEQ_{stem}_{scene}_{cut}_{type}",
+    "main_level": "ML_{stem}_{scene}",
+    "sub_level": "SL_{stem}_{scene}_{type}",
+    "camera_binding": "{stem}_{scene}_{cut}_camera",
+    "shot_display": "{cut}"
+  },
+
+  "scene_format": "S{:02d}",
+  "cut_format": "C{:04d}",
+
+  "folders": {
+    "scene_sub": "Subsequence",
+    "cut_sub": "Subsequence",
+    "map": "Map",
+    "animation": "Animation",
+    "vfx": "VFX"
+  },
+
+  "sub_types": [
+    {"key": "ANIM",         "folder_color": "#FF604F", "track_color": "#77474B"},
+    {"key": "CAM",          "folder_color": "#4DA1FB", "track_color": "#606E94"},
+    {"key": "LGT",          "folder_color": "#FFED49", "track_color": "#9C946E"},
+    {"key": "VFX",          "folder_color": "#FF9E3B", "track_color": "#997E6D"},
+    {"key": "Sound",        "folder_color": "#A14FFF", "track_color": "#745380"},
+    {"key": "Media",        "folder_color": "#009416", "track_color": "#6E7F5C"},
+    {"key": "LayoutAdjust", "folder_color": "#00BFBA", "track_color": "#498583"}
+  ],
+
+  "camera": {
+    "float_tracks": [
+      {"name": "CurrentFocalLength",  "path": "CurrentFocalLength"},
+      {"name": "CurrentAperture",     "path": "CurrentAperture"},
+      {"name": "ManualFocusDistance", "path": "FocusSettings.ManualFocusDistance"}
+    ]
+  },
+
+  "sequence": {
+    "display_rate": 30,
+    "tick_resolution": 24000,
+    "default_cut_frames": 120
+  },
+
+  "_content_types_comment": "Abbreviation table is UNRESOLVED - see plan Q2. Left empty on purpose: the Name Stem field in the UI covers every case without it. Fill this in once the SOP settles, no code change needed.",
+  "content_types": {}
+}
