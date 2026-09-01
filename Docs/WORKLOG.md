@@ -2,7 +2,7 @@
 title: 작업 일지 (WORKLOG) — Unreal
 aliases: [WORKLOG, 작업일지, devlog, UE 작업일지]
 tags: [worklog, unreal, unreal-python]
-updated: 2026-08-24
+updated: 2026-09-01
 ---
 
 # 작업 일지 (WORKLOG) — Unreal
@@ -16,7 +16,42 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ---
 
-## 2026-08-24 (오늘)
+## 2026-09-01 (오늘)
+
+> [!summary] `A00510_bone_viewport` **창을 닫지 않는 Apply 버튼** (플러그인 v01.02→01.03, 툴 v01.00→01.01)
+- 요청은 한 줄이었다 — *"OK 를 누르면 적용되고 창이 닫힌다. Apply 같은 걸 눌러 적용하되 창은
+  안 닫히게 해 달라."* 문제는 **파이썬만으로는 모덜리스 창을 만들 수 없다**는 것이다.
+  창을 만드는 수단이 `unreal.EditorDialog.show_object_details_view()` 하나뿐인데 그건 모달이고,
+  내부적으로 `GEditor->EditorAddModalWindow()` 를 부른다 (엔진 소스에서 확인).
+- **그래서 창이 아니라 창 안을 고쳤다.** 디테일 뷰는 인자가 없고 `CallInEditor` 메타가 붙은
+  UFUNCTION 을 자동으로 버튼으로 그려 준다. 프로퍼티 두 개 옆에 `Apply` / `Reset` 버튼이 생기고,
+  이 버튼은 창을 닫지 않으므로 창을 띄워 둔 채 몇 번이고 누를 수 있다.
+- **추측 대신 엔진 소스로 조건을 확정했다** (UE 5.7).
+  `PropertyCustomizationHelpers::CanCallFunctionBasedOnParams()` 가
+  `GetBoolMetaData("CallInEditor") && ParmsSize == 0` 딱 두 가지만 본다.
+  `DetailCustomizations` 가 `RegisterCustomClassLayout("Object", FObjectDetails::MakeInstance)`
+  로 등록돼 있어 **모든 디테일 뷰**가 이 버튼을 얻는다 — 우리 팝업도 포함이다.
+  파이썬 쪽 메타 전달은 `FPyUFunctionDef::ApplyMetaData()` → `UFunction::SetMetaData()` 라
+  C++ 로 쓴 것과 차이가 없다.
+- **버튼 네 개의 역할을 갈랐다.** `Apply` = 지금 값 적용 + 창 유지(주 경로),
+  `Reset` = 창을 열었을 때의 값으로 복귀, `OK` = 아직 적용 안 된 값이 있으면 적용하고 닫기,
+  `Cancel` = 그냥 닫기(이미 Apply 한 것은 안 되돌린다 — 그건 Reset 의 몫).
+  "적용됐는지"의 정본은 UI 상태가 아니라 **`UPersonaOptions` 의 실제 값**이다. 그래서 `_pending()`
+  이 매번 실물을 읽어 비교한다. 창이 오래 떠 있어도 UI 상태가 실물과 어긋날 일이 없다.
+- **헤드리스 16/16 통과** (`Docs/verify/verify_a00510_apply.py`, UE 5.7 + 스크래치 프로젝트,
+  `UE_ADDITIONAL_PLUGIN_PATHS` 로 마운트). UFunction 등록 · 인자 없음 · Apply 멱등 ·
+  Reset 복원 · `show()` 뒷정리 · DEV_MODE 리로드 3회.
+- **헤드리스로 확인 못 하는 것도 적어 뒀다.** `-unattended` 면 `ShowObjectsDetailsView()` 가 창을
+  아예 안 만들고 false 를 돌려주므로 **버튼이 그려지는 것 자체는 눈으로 봐야 한다.**
+  대신 엔진이 버튼을 그리는 조건을 소스에서 읽어 그 조건을 검사하는 쪽으로 대체했다.
+- 검증 도중 실패한 probe 하나가 유용했다 — `@unreal.uclass()` 를 거치면 파이썬 함수가
+  **네이티브 메서드로 치환**돼 `inspect.signature` 가 안 통한다
+  (`no signature found for builtin`). 뒤집어 보면 UFunction 등록이 제대로 됐다는 증거다.
+  arity 는 인자를 하나 넣어 `TypeError` 가 나는지로 확인했다. #A00510
+
+---
+
+## 2026-08-24
 
 > [!summary] `A00520_cinematic_sequence_builder` **시네마틱 시퀀서 구조 생성** (v01.01→01.02)
 - **먼저 조사부터 했다.** 사내 워크스페이스(`docs/`, `MANUProject/Docs/`, `MANUEditor` 플러그인

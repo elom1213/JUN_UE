@@ -5,11 +5,16 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 559dfd30-01bc-4110-8708-a1499b043ca1
-  modified: 2026-08-14T03:40:33.834Z
+  modified: 2026-09-01T06:40:00.000Z
 ---
 
-`JUN_UE` 의 A00510_bone_viewport (v01.00, 2026-08-14). 스켈레탈 메시 뷰포트에서
+`JUN_UE` 의 A00510_bone_viewport (툴 v01.01 / 플러그인 v01.03, 2026-09-01). 스켈레탈 메시 뷰포트에서
 `눈 아이콘 > Bones > All Hierarchy` 를 타고 들어가던 것을 메뉴 클릭 한 번으로.
+
+**팝업은 `Apply` / `Reset` 버튼으로 창을 닫지 않고 적용한다** (v01.01). 파이썬으로 모덜리스 창을
+만들 수 없어 창이 아니라 창 안을 고쳤다 — `CallInEditor` 메타를 단 인자 없는 UFUNCTION 은
+디테일 뷰가 버튼으로 그려 준다. 패턴 자체는 [[unreal-python-tool-verify]] 에 정리해 뒀다.
+"적용됐는지"의 정본은 UI 가 아니라 `UPersonaOptions` 실물이라 `_pending()` 이 매번 실물을 읽는다.
 
 **되는 것**: `unreal.find_object(None, "/Script/UnrealEd.Default__PersonaOptions")` 로 CDO 를 잡고
 `DefaultBoneDrawSelection`(0=None … **5=All Hierarchy**), `bShowBoneColors` 를 읽고 쓴다.

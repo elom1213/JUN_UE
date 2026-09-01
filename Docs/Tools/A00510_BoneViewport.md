@@ -2,7 +2,7 @@
 
 스켈레탈 메시 / 애니메이션 에디터 뷰포트에서 **본을 보이게 하는 설정**을 팝업 하나로 처리한다.
 
-- **버전**: v01.00 (2026-08-14)
+- **버전**: v01.01 (2026-09-01) — Apply 버튼 추가
 - **메뉴**: `Tools > JUN > Animation`
   - `Bone Display Settings...` — 팝업
   - `Show All Bones` — 다이얼로그 없이 바로 All Hierarchy
@@ -69,8 +69,20 @@ class FAnimationViewportClient ...
 |------|------|------|
 | Bone Draw Mode | 드롭다운 | None / Selected Only / Selected and Parents / Selected and Children / Selected and Parents and Children / **All Hierarchy** |
 | Show Bone Colors | 체크박스 | 본을 여러 색으로 |
+| **Apply** | 버튼 | 지금 값을 적용한다. **창은 그대로 떠 있다** |
+| **Reset** | 버튼 | 창을 열었을 때의 값으로 되돌려 적용한다 |
 
-**OK** 를 누르면 적용하고, 무엇이 어떻게 바뀌었는지 Output Log 에 남긴다.
+**Apply 가 주 경로다.** 눌러도 창이 닫히지 않으므로, 창을 띄워 둔 채 모드를 바꿔 가며
+뷰포트를 확인할 수 있다. 잘못 적용했으면 **Reset** 이 창을 열었을 때의 값으로 되돌린다.
+
+창 아래 버튼은 이렇게 동작한다.
+
+| 버튼 | 하는 일 |
+|------|---------|
+| OK | 아직 적용 안 된 값이 남아 있으면 적용하고 닫는다 (Apply 를 이미 눌렀으면 아무것도 안 바뀐다) |
+| Cancel | 그냥 닫는다. **이미 Apply 한 것은 되돌리지 않는다** — 그건 Reset 의 몫이다 |
+
+무엇이 어떻게 바뀌었는지는 매번 Output Log 에 남는다.
 
 ```
 [JUNTools] Bone display: Bone Draw Mode : Selected Only -> All Hierarchy
@@ -124,7 +136,7 @@ void UPersonaOptions::SetDefaultBoneDrawSelection(uint32 In)
 ```
 A00510_bone_viewport/
 ├─ core.py    # UPersonaOptions CDO 읽기/쓰기 (UI 무의존)
-└─ ui.py      # uenum + uclass 로 만든 디테일 뷰 팝업
+└─ ui.py      # uenum + uclass 로 만든 디테일 뷰 팝업 + CallInEditor 버튼
 ```
 
 UI 없이 그냥 부를 수도 있다.
@@ -133,6 +145,36 @@ UI 없이 그냥 부를 수도 있다.
 from jun_tools.tools.A00510_bone_viewport import core
 core.set_bone_draw_mode(core.BoneDrawMode.ALL_HIERARCHY)
 ```
+
+### 창을 닫지 않고 적용하는 법 — `CallInEditor` 버튼
+
+파이썬만으로는 **모덜리스(non-modal) 창을 띄울 수 없다.** 창을 만드는 수단이
+`show_object_details_view()` 하나뿐인데 그건 모달이라, v01.00 에서는 OK 로 창을 닫아야만
+설정이 적용됐다. 값을 조금씩 바꿔 보려면 매번 메뉴를 다시 눌러야 했다.
+
+해결은 창 자체가 아니라 **창 안**이다. 디테일 뷰는 인자가 없고 `CallInEditor` 메타가 붙은
+UFUNCTION 을 **자동으로 버튼으로 그려 준다.**
+
+```python
+@unreal.ufunction(meta=dict(CallInEditor="true", Category="Bone Display", DisplayName="Apply"))
+def apply(self):
+    apply_settings(self)
+```
+
+엔진 쪽 판정은 딱 두 조건이다 (UE 5.7 실제 코드).
+
+```cpp
+// PropertyEditor/Private/PropertyCustomizationHelpers.cpp : CanCallFunctionBasedOnParams()
+const bool bCanCall = TestFunction->GetBoolMetaData(NAME_CallInEditor) && (TestFunction->ParmsSize == 0);
+```
+
+그리고 `DetailCustomizations` 가 `RegisterCustomClassLayout("Object", FObjectDetails::MakeInstance)`
+로 등록돼 있어서 **모든 디테일 뷰**가 이 버튼을 얻는다 — 우리 팝업도 포함이다.
+파이썬 `@unreal.ufunction(meta=...)` 의 메타는 `FPyUFunctionDef::ApplyMetaData()` 가
+`UFunction::SetMetaData()` 로 그대로 넘겨 주므로 C++ 로 쓴 것과 차이가 없다.
+
+> 다른 툴에도 그대로 쓸 수 있는 패턴이다. **모달 다이얼로그 안에 "닫지 않는 동작"을 넣고 싶으면
+> 프로퍼티가 아니라 인자 없는 UFUNCTION 을 추가한다.**
 
 ### 코드에서 눈여겨볼 점
 
@@ -149,7 +191,27 @@ core.set_bone_draw_mode(core.BoneDrawMode.ALL_HIERARCHY)
 
 ## 검증 기록
 
-`MANU_Engine_Prebuilt` 5.7.4 헤드리스 (2026-08-14) — **19/19 통과**.
+### v01.01 — Apply 버튼 (2026-09-01)
+
+`UE_5.7` 헤드리스 + 스크래치 프로젝트 — **16/16 통과**
+(`Docs/verify/verify_a00510_apply.py`, `UE_ADDITIONAL_PLUGIN_PATHS` 로 마운트).
+
+- `apply` / `reset` 이 생성된 UClass 에 **진짜 UFunction 으로 등록**된다 (`unreal.find_object` 로 확인)
+- 둘 다 인자를 받지 않는다 = `ParmsSize == 0` (엔진이 버튼을 그리는 조건)
+- Apply 는 다이얼로그가 보여 주는 값을 그대로 쓰고, 두 번 눌러도 안전하다 (두 번째는 `nothing changed`)
+- Reset 은 창을 열었을 때의 값으로 되돌리고, 기억해 둔 값이 없으면 경고만 남기고 아무것도 안 한다
+- `show()` 를 빠져나갈 때 `_ALIVE` / `_ORIGINALS` 에 아무것도 안 남는다
+- DEV_MODE 리로드 3회에도 uclass/uenum 재등록 문제 없음
+
+> **버튼이 실제로 그려지는지는 헤드리스로 확인할 수 없다.** `-unattended` 면
+> `ShowObjectsDetailsView()` 가 창을 만들지 않고 바로 false 를 돌려주므로 디테일 패널 자체가
+> 안 만들어진다. 대신 엔진이 버튼을 그리는 **조건 두 개를 코드에서 읽어** 확인했고
+> (위 "창을 닫지 않고 적용하는 법"), 그 조건을 헤드리스로 검사했다.
+> 에디터에서 눈으로 볼 것 — `Bone Display` 카테고리 아래 `Apply` / `Reset` 버튼 두 개.
+
+### v01.00 (2026-08-14)
+
+`MANU_Engine_Prebuilt` 5.7.4 헤드리스 — **19/19 통과**.
 
 - 모드 읽기/쓰기 왕복, `apply()` 변경 목록, quick 액션
 - 다이얼로그 경로 3회 연속 실행 → DEV_MODE 리로드로 uclass/uenum 이 재등록돼도 에러 없음

@@ -1,5 +1,27 @@
 # CHANGELOG — JUNTools
 
+## v01.03 (2026-09-01)
+
+### Changed
+- `A00510_bone_viewport` — **`Apply` 버튼으로 창을 닫지 않고 적용**한다 (툴 v01.00 → v01.01).
+  - 전에는 OK 를 눌러 창이 닫혀야만 설정이 적용됐다. 값을 조금씩 바꿔 가며 뷰포트를 보려면
+    매번 메뉴를 다시 눌러야 했다.
+  - 이제 팝업 안에 `Apply` / `Reset` 버튼이 있다. `Apply` 는 지금 값을 적용하고 **창은 그대로**,
+    `Reset` 은 창을 열었을 때의 값으로 되돌려 적용한다.
+  - OK 는 아직 적용 안 된 값이 남아 있을 때만 적용하고 닫는다. Cancel 은 그냥 닫으며,
+    이미 `Apply` 한 것은 되돌리지 않는다(그건 `Reset` 의 몫).
+  - 구현: 인자 없는 UFUNCTION 에 `CallInEditor` 메타를 달면 디테일 뷰가 버튼으로 그려 준다.
+    파이썬만으로는 모덜리스 창을 못 만들기 때문에 **창이 아니라 창 안**을 고친 것이다.
+  - `core` 에 `CHANGE_BONE_DRAW_MODE` / `CHANGE_SHOW_BONE_COLORS` 상수 추가 — 변경 항목 이름을
+    UI 와 core 양쪽에 흩어 두지 않는다.
+
+### Verified
+- `Docs/verify/verify_a00510_apply.py` — UE 5.7 헤드리스 **16/16 통과**.
+  UFunction 등록 · 인자 없음 · Apply 멱등 · Reset 복원 · show() 뒷정리 · 리로드 3회.
+  버튼이 그려지는지는 헤드리스로 볼 수 없어(`-unattended` 는 창을 안 만든다) 엔진 조건
+  (`GetBoolMetaData("CallInEditor") && ParmsSize == 0`, `FObjectDetails` 가 "Object" 에 등록)을
+  소스에서 확인하고 그 조건을 검사했다. 실제 버튼은 에디터에서 눈으로 확인이 필요하다.
+
 ## v01.02 (2026-08-24)
 
 ### Added

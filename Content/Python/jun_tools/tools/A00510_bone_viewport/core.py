@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Python Script by Ji Hun Park
-# last Update date : 2026-08-14
+# last Update date : 2026-09-01
 #
 # A00510_bone_viewport - 로직.
 #
@@ -38,6 +38,12 @@ class BoneDrawMode(object):
     SELECTED_AND_CHILDREN = 3
     SELECTED_AND_PARENTS_AND_CHILDREN = 4
     ALL_HIERARCHY = 5
+
+
+# `apply()` 가 돌려주는 변경 항목의 이름. UI 가 어느 항목이 바뀌었는지 판별할 때도 쓰므로
+# 문자열을 양쪽에 흩어 놓지 않고 여기 한 곳에 둔다.
+CHANGE_BONE_DRAW_MODE = "Bone Draw Mode"
+CHANGE_SHOW_BONE_COLORS = "Show Bone Colors"
 
 
 # 로그에 찍을 이름. 뷰포트 메뉴에 표시되는 문구를 그대로 쓴다.
@@ -94,11 +100,12 @@ def apply(bone_draw_mode=None, show_bone_colors=None):
     if bone_draw_mode is not None:
         previous = set_bone_draw_mode(bone_draw_mode)
         if previous != int(bone_draw_mode):
-            changed.append(("Bone Draw Mode", mode_label(previous), mode_label(bone_draw_mode)))
+            changed.append(
+                (CHANGE_BONE_DRAW_MODE, mode_label(previous), mode_label(bone_draw_mode)))
 
     if show_bone_colors is not None:
         previous = set_show_bone_colors(show_bone_colors)
         if previous != bool(show_bone_colors):
-            changed.append(("Show Bone Colors", str(previous), str(bool(show_bone_colors))))
+            changed.append((CHANGE_SHOW_BONE_COLORS, str(previous), str(bool(show_bone_colors))))
 
     return changed
