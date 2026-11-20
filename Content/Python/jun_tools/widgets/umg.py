@@ -130,6 +130,13 @@ def combo(options, index=0):
         widget.set_editor_property("font", editor_font())
     except Exception:
         pass
+    # 글자색: UComboBoxString 생성자가 ForegroundColor 를 **게임 스타일** 글자색(검정)으로 정한 뒤,
+    # EditorUtilityComboBoxString 은 배경 스타일만 에디터 것으로 바꾸고 글자색은 그대로 둔다
+    # → 어두운 배경에 검은 글자(고른 값이 안 보임). 위젯이 그려지기 전에만 바꿀 수 있다(그 뒤엔 무시).
+    try:
+        widget.set_editor_property("foreground_color", color(COLOR_TEXT))
+    except Exception:
+        pass
     for option in options:
         widget.add_option(option)
     widget.set_selected_index(index)

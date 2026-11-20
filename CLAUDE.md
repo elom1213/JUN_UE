@@ -51,6 +51,7 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
   헤드리스로 확인할 땐 `collect_garbage()`(다음 틱 예약) 말고 `execute_console_command(None, "obj gc")`.
 - 파이썬으로 만드는 위젯은 **`EditorUtility*` 판**(Button · EditableTextBox · ComboBoxString · CheckBox · ScrollBox ...)을 쓴다.
   일반 `unreal.Button` 등은 게임 스타일(글꼴 24)이다. TextBlock 은 에디터 판이 없어 글꼴을 직접 입힌다(A00530 `editor_font()`).
+  `EditorUtilityComboBoxString` 도 **글자색만은 게임 스타일(검정)** 로 남는다 → 그리기 전에 `foreground_color` 지정(`umg.combo()`).
 - 위젯 델리게이트(`on_clicked.add_callable` 등)는 **기본값 인자까지 인자 수로 센다** — `lambda p=x: ...` 는
   `Callable has the incorrect number of arguments` 로 거부된다. 값을 묶을 땐 클로저 팩토리를 쓴다.
 

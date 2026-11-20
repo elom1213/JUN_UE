@@ -244,6 +244,10 @@ def main():
           and isinstance(tab_view.search, unreal.EditorUtilityEditableTextBox)
           and isinstance(tab_view.match_mode, unreal.EditorUtilityComboBoxString)
           and isinstance(tab_view.rows, unreal.EditorUtilityScrollBox))
+    for combo_name, combo_widget in (("mode", tab_view.mode), ("match", tab_view.match_mode)):
+        fg = combo_widget.get_editor_property("foreground_color").get_editor_property("specified_color")
+        check("{} combo text is not black (v01.06)".format(combo_name), fg.r > 0.5 and fg.g > 0.5 and fg.b > 0.5,
+              str(fg))
     size = tab_view.status.get_editor_property("font").get_editor_property("size")
     check("editor font size (not 24)", 0 < size <= 12, str(size))
 

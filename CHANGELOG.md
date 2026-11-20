@@ -1,5 +1,16 @@
 # CHANGELOG — JUNTools
 
+## v01.10 (2026-11-20)
+
+### Fixed
+- `A00530_jun_renamer` v01.06 — **`Mode:` · Match 콤보에서 고른 값이 검정으로 안 보이던 문제.**
+  `UComboBoxString` 생성자가 글자색(`ForegroundColor`)을 게임 스타일 글자색(검정)으로 정하고, `EditorUtilityComboBoxString` 은
+  배경만 에디터 스타일로 바꾼다. 공용 헬퍼 `umg.combo()` 가 위젯이 그려지기 전에 글자색을 에디터 글자색으로 지정한다
+  (공용 위젯이라 이 헬퍼를 쓰는 모든 콤보에 적용).
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **73/73** (콤보 글자색 검사 추가), 에러 로그 0.
+
 ## v01.09 (2026-11-20)
 
 ### Changed

@@ -18,6 +18,13 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **콤보 글자가 검게 안 보이던 문제** (플러그인 v01.09→01.10, 툴 v01.06)
+- `Mode:` 콤보에서 Default / Copy Name 을 골라도 글자가 검정이라 안 보였다(Match 콤보도 같음).
+- 엔진 소스: `UComboBoxString` 생성자가 `ForegroundColor = ItemStyle.TextColor`(게임 스타일 = 검정)로 정하고,
+  `EditorUtilityComboBoxString` 은 그 뒤 배경 · 아이템 스타일만 에디터 것으로 바꾼다 — 글자색은 그대로 검정. 헤드리스로 (0,0,0) 확인.
+  `ForegroundColor` 는 "생성 때만 쓰이는" 값이라 위젯이 그려지기 전에 `set_editor_property` 로 바꾸면 된다.
+- 공용 `umg.combo()` 에서 고쳐서 이 헬퍼를 쓰는 모든 콤보에 적용. 검증 5.4.4 · 5.7.4 **73/73**. #A00530
+
 > [!summary] `A00530_jun_renamer` **설정 패널 정리 — 위쪽 화면과 겹치는 항목 제거** (플러그인 v01.08→01.09, 툴 v01.05)
 - 요청: Rename 섹션의 Preview 버튼 · Rename Preview · Search · Replace 와, Rename · Assets 에서 위쪽 화면과 겹치는 것을 없앤다.
   겹치는 것을 더 찾아 Match · Loaded · Name Filter · Load Selected 도 함께 뺐다.
