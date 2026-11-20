@@ -472,6 +472,11 @@ def preview_copy(settings):
     _set(settings, "copy_preview", lines)
     for text in warnings:
         core.warn(text)
+    if _state.get("tab") is not None:
+        try:
+            importlib.import_module(__package__ + ".ui_tab").show_copy_rows(rows, warnings)
+        except Exception as error:
+            core.warn("tab copy list update failed: {}".format(error))
     return rows
 
 
@@ -592,6 +597,7 @@ def fill_tab(widget):
         view = ui_tab.build(root, settings())
         _state["tab"] = view
         preview_rename(settings())
+        preview_copy(settings())
         return view.details_view
 
     _state["tab"] = None

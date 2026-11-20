@@ -1,5 +1,24 @@
 # CHANGELOG — JUNTools
 
+## v01.08 (2026-11-20)
+
+### Added
+- **공용 EUW 위젯 `jun_tools/widgets/`** — 마야 `Framework/qt` 공용 위젯의 대응.
+  - `umg.py` : 위젯 조립 헬퍼(에디터 스타일 위젯 · 에디터 글꼴 · GC 에 안전한 `connect()` · 박스 배치). A00530 에서 옮김.
+  - `asset_list.py` : **`AssetList`** — 마야 `JUN_mod_tsl_qt_v01`(TSL) 대응. 제목 + 개수 + 행 목록 +
+    `Load Selected` / `Add` / `Del` / `Up` / `Down` / `Sort` (+ `Reverse` / `Clear`). 문서 `Docs/Widgets/AssetList.md`.
+  - DEV_MODE 에서 툴을 열 때 `jun_tools.widgets` 도 함께 다시 읽는다.
+
+### Changed
+- `A00530_jun_renamer` v01.04 — **Default / Copy Name 모드.** 탭 맨 위 `Mode:` 콤보로 고른다 (UMG `WidgetSwitcher`).
+  - Copy Name 모드: Base / Targets **리스트 두 개**(AssetList, `Sort Base` / `Sort Targets`), Prefix · Suffix · Search ·
+    Replace · Case Sensitive, Base | Target | New Name | Status 미리보기, `Copy Name` 버튼(Ready 가 없으면 꺼짐).
+  - 설정 패널의 접히는 **Copy Name 섹션 제거** (`DetailsView.categories_to_show = [Assets, Rename]`). 모달 대체 창에는 남아 있다.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **71/71**, 에러 로그 0. 모드 전환 · 리스트 버튼 전부(`obj gc` 뒤 포함) ·
+  Copy Name 칸 → 미리보기 → 실행 → 리스트에 새 이름. 화면 배치는 에디터 확인 필요.
+
 ## v01.07 (2026-11-20)
 
 ### Fixed

@@ -18,6 +18,20 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **Default / Copy Name 모드 + 공용 리스트 위젯 `AssetList`** (플러그인 v01.07→01.08, 툴 v01.04)
+- 요청: Copy Name 을 더 간편하게 — 모드 선택, Base / Targets 리스트 두 개, Load · Copy Name · Sort Base · Sort Targets 버튼,
+  접히는 Copy Name 섹션 제거. 리스트는 **마야에서 만들어 온 공용 위젯(TSL)처럼** 공용으로.
+- **용어 정정** — TSL 은 마야 `textScrollList` 라 언리얼 용어가 아니다. UMG 의 대응은 `ListView` 인데 행 위젯 에셋이 하나 더
+  필요해서 `ScrollBox` 에 행을 쌓는 **`AssetList`** 로 만들었다. 버튼 구성은 마야 `JUN_mod_tsl_qt_v01` 를 따랐고,
+  "Select Objects" 만 언리얼에서 뜻이 달라 `Load Selected` 로.
+- 공용 코드는 `jun_tools/widgets/`(`umg.py` 헬퍼 + `asset_list.py`)로 올렸다. A00530 `ui_tab.py` 의 헬퍼를 옮긴 것.
+  DEV_MODE 에서 툴을 다시 열면 공용 위젯도 다시 읽는다.
+- 설정 패널의 Copy Name 섹션은 클래스를 고치지 않고 `DetailsView.categories_to_show` 로 숨겼다 — 세션에 캐시된 클래스라
+  구성을 바꾸면 재시작이 필요하기 때문.
+- 검증 중 헤드리스가 한 번 **크래시** — 리스트 행 클릭의 "콘텐츠 브라우저로 이동" 이 브라우저가 없는 커맨드렛에서 Slate assert.
+  에디터에선 생기지 않는 경로라 검증에서만 그 동작을 바꿔 끼웠다.
+- 검증 5.4.4 · 5.7.4 **71/71**. 화면 배치는 에디터 확인 대기. #A00530
+
 > [!summary] `A00530_jun_renamer` **스파이크 UI 수정 — 에디터 스타일 · 끊기던 버튼** (플러그인 v01.06→01.07, 툴 v01.03)
 - 사용자 스크린샷(`.ref/renamer_01~02.png`): 글자가 아주 크고, 목록 열이 겹치고, 위쪽 `Load Selected` 가 안 눌렸다.
 - **글자 크기** — `unreal.TextBlock / Button / EditableTextBox` 는 게임용 기본 스타일(글꼴 24)이다. Blutility 에 에디터 스타일을

@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.03 (2026-11-20) — 스파이크 UI 를 에디터 스타일로 · Load Selected 수정 (2.2). v01.01 = 모달 창 → **도킹 탭**
+- **버전**: v01.04 (2026-11-20) — **Default / Copy Name 모드** · 공용 리스트 위젯 (2.3). v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -110,6 +110,37 @@ Material    XRock_A             ->   Rock_A          Ready          ← 행을 �
 
 ---
 
+### 2.3 모드 — Default / Copy Name (v01.04)
+
+탭 맨 위 `Mode:` 콤보로 고른다. 고른 모드는 세션 동안 남는다.
+
+| 모드 | 화면 |
+|------|------|
+| **Default** | 2.2 의 원본 모양 화면 + 설정 패널(**Assets · Rename 섹션만** — 접히는 Copy Name 섹션은 없앴다) |
+| **Copy Name** | Base / Targets **리스트 두 개** + 이름 칸 + 미리보기 + `Copy Name` 버튼 (3.3) |
+
+```
+Mode: [Copy Name v]
+┌───────────────────────────────────────────────────────────┐
+│ Base              Number: 2  │ Targets           Number: 2 │
+│ ┌──────────────────────────┐ │ ┌─────────────────────────┐ │
+│ │ SK_Hero                  │ │ │ ABP_Temp                │ │
+│ └──────────────────────────┘ │ └─────────────────────────┘ │
+│ [     Load Selected      ]   │ [     Load Selected     ]   │
+│ [Add][Del][Up][Down][Sort Base] [Add][Del][Up][Down][Sort Targets]
+└───────────────────────────────────────────────────────────┘
+Prefix [   ]  Suffix [   ]
+Search [   ]  Replace [   ]  [x] Case Sensitive
+2 pair(s), 2 will be renamed
+Base     Target     ->  New Name      Status
+                                         [ Copy Name ]
+```
+
+- 리스트는 공용 위젯 **`AssetList`**(`jun_tools/widgets/asset_list.py`)다 — 마야 `JUN_mod_tsl_qt_v01` 의 대응.
+  **"TSL" 은 마야 `textScrollList` 의 이름이라 언리얼 용어가 아니다.** UMG 의 같은 역할은 `ListView` 인데 행 위젯
+  에셋이 하나 더 필요해서, 이 위젯은 `ScrollBox` 에 행을 쌓는다. 사용법은 [../Widgets/AssetList.md](../Widgets/AssetList.md).
+- 모달 대체 창(EUW 를 못 띄울 때)에는 예전처럼 설정 패널에 Copy Name 섹션이 남아 있다.
+
 ## 3. 쓰는 법
 
 ### 3.1 Rename (원본 Asset Renamer)
@@ -153,12 +184,13 @@ Trim Front/Rear → Search/Replace → Prefix → Suffix → (수동 입력이 �
 
 `Targets[i]` 의 이름을 `Prefix + (Search/Replace 한) Base[i] 이름 + Suffix` 로 바꾼다. 순서 기준.
 
-1. 탭을 띄운 채 콘텐츠 브라우저에서 **Base** 에셋을 고르고 **`Base <- Selection`**.
-2. **Targets** 에셋을 고르고 **`Targets <- Selection`**.
-   - 탭 안에서 배열 칸마다 에셋을 직접 고르거나, 끌어서 순서를 바꿀 수도 있다.
-   - 콘텐츠 브라우저 선택 순서가 원하는 순서가 아니면 `Sort Base` / `Sort Targets`(이름순).
-3. `Prefix` / `Suffix` / `Search` / `Replace` 를 채우면 `Copy Preview` 가 바뀐다(자동 · `Preview Copy` 버튼으로도).
-4. **`Copy Name`** → 확인 창 → 실행.
+1. `Mode:` 를 **Copy Name** 으로.
+2. 콘텐츠 브라우저에서 **Base** 에셋을 고르고 Base 리스트의 **`Load Selected`**. Targets 도 같은 방식.
+   - `Add` = 중복 없이 뒤에 붙임 · `Del` / `Up` / `Down` = 고른 행(누르면 파랗게) 삭제 · 이동.
+   - 순서가 원하는 대로가 아니면 **`Sort Base`** / **`Sort Targets`**(이름순).
+   - 행을 누르면 콘텐츠 브라우저가 그 에셋으로 옮겨 간다. 지워진 에셋은 빨간 `(None)`.
+3. `Prefix` / `Suffix` / `Search` / `Replace` 는 Enter(또는 포커스 이동), `Case Sensitive` 는 체크하면 미리보기가 바뀐다.
+4. **`Copy Name`** → 확인 창 → 실행. 바꿀 행(Ready)이 없으면 버튼이 꺼진다. 실행 뒤 리스트에 새 이름이 보인다.
 
 | 입력 | 동작 |
 |------|------|

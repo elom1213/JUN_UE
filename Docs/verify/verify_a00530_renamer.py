@@ -211,8 +211,9 @@ def main():
     settings.set_editor_property("prefix", "")
     tab_details = ui.fill_tab(FakeTabWidget(tab_root))
     tab_view = ui._state.get("tab")
-    check("tab content is built into Root", tab_view is not None and tab_root.get_children_count() >= 6,
-          str(tab_root.get_children_count()))
+    check("tab content is built into Root (mode row + page switcher with 2 pages)",
+          tab_view is not None and tab_root.get_children_count() == 2
+          and tab_view.pages.get_children_count() == 2, str(tab_root.get_children_count()))
     check("tab DetailsView shows the settings object",
           tab_details is not None and tab_details.get_object() == settings)
     rows = ui.preview_rename(settings)
@@ -262,6 +263,73 @@ def main():
     check("Name Filter still works after GC", settings.get_editor_property("name_filter") == "Rock")
     settings.set_editor_property("name_filter", "")
     ui.preview_rename(settings)
+
+    # --- v01.04: Default / Copy Name modes + shared AssetList ------------------
+    from jun_tools.widgets import asset_list
+    check("settings panel hides the Copy Name section",
+          [str(n) for n in tab_view.details_view.get_editor_property("categories_to_show")] == ["Assets", "Rename"])
+    tab_view.mode.on_selection_changed.broadcast("Copy Name", unreal.SelectInfo.DIRECT)
+    check("mode combo switches to the Copy Name page", tab_view.pages.get_active_widget_index() == 1
+          and ui._state.get("mode") == 1)
+    check("Copy Name page has Base / Targets lists",
+          isinstance(tab_view.base_list, asset_list.AssetList)
+          and isinstance(tab_view.targets_list, asset_list.AssetList))
+
+    # same objects as above (child / rock_b were already renamed by the Copy Name test)
+    names = lambda objs: [o.get_name() for o in objs]
+    child_name, rock_b_name = child.get_name(), rock_b.get_name()
+    say("copy-mode targets start as {} / {}".format(child_name, rock_b_name))
+    picks = {"base": [rock_a, m_base], "targets": [rock_b, child]}
+    tab_view.base_list.get_selection = lambda: picks["base"]
+    tab_view.targets_list.get_selection = lambda: picks["targets"]
+    unreal.SystemLibrary.execute_console_command(None, "obj gc")
+    tab_view.base_list.buttons["load"].on_clicked.broadcast()
+    tab_view.targets_list.buttons["load"].on_clicked.broadcast()
+    check("Load Selected fills Base / Targets (after GC)",
+          [o.get_name() for o in settings.get_editor_property("base")] == ["Rock_A_01", "M_Base"]
+          and names(settings.get_editor_property("targets")) == [rock_b_name, child_name])
+    tab_view.base_list.buttons["sort"].on_clicked.broadcast()
+    check("Sort Base", [o.get_name() for o in settings.get_editor_property("base")] == ["M_Base", "Rock_A_01"])
+    tab_view.targets_list.buttons["sort"].on_clicked.broadcast()
+    check("Sort Targets", names(settings.get_editor_property("targets")) == sorted([child_name, rock_b_name]))
+    # a commandlet has no Content Browser - syncing to it asserts in Slate, so skip that part here
+    tab_view.targets_list.on_row_clicked = lambda item: None
+    tab_view.targets_list.select(1)
+    tab_view.targets_list.buttons["up"].on_clicked.broadcast()
+    check("row select + Up", names(tab_view.targets_list.items()) == sorted([child_name, rock_b_name])[::-1]
+          and tab_view.targets_list.selected_index == 0)
+    tab_view.targets_list.buttons["down"].on_clicked.broadcast()
+    tab_view.targets_list.buttons["del"].on_clicked.broadcast()
+    check("Down + Del", names(settings.get_editor_property("targets")) == sorted([child_name, rock_b_name])[:1])
+    tab_view.targets_list.buttons["add"].on_clicked.broadcast()
+    check("Add skips duplicates", sorted(names(settings.get_editor_property("targets")))
+          == sorted([child_name, rock_b_name]) and len(settings.get_editor_property("targets")) == 2)
+    settings.set_editor_property("targets", [child, rock_b])
+    tab_view.targets_list.set_items([child, rock_b])
+    check("list count label", str(tab_view.targets_list.count.get_text()) == "Number: 2")
+
+    tab_view.copy_fields["copy_prefix"].on_text_committed.broadcast("CP_", unreal.TextCommit.ON_ENTER)
+    tab_view.copy_fields["copy_suffix"].on_text_committed.broadcast("", unreal.TextCommit.ON_ENTER)
+    tab_view.copy_fields["copy_search"].on_text_committed.broadcast("_01", unreal.TextCommit.ON_ENTER)
+    tab_view.copy_case.on_check_state_changed.broadcast(False)
+    check("Copy Name fields -> settings", settings.get_editor_property("copy_prefix") == "CP_"
+          and settings.get_editor_property("copy_search") == "_01"
+          and settings.get_editor_property("copy_case_sensitive") is False)
+    check("Copy preview rows drawn", tab_view.copy_rows.get_children_count() == 2
+          and "2 will be renamed" in str(tab_view.copy_status.get_text()), str(tab_view.copy_status.get_text()))
+    original_confirm = ui._confirm
+    ui._confirm = lambda message: True
+    tab_view.copy_button.on_clicked.broadcast()
+    ui._confirm = original_confirm
+    check("Copy Name button renames", exists(ROOT + "/CP_M_Base") and exists(ROOT + "/CP_Rock_A"),
+          str([o.get_name() for o in settings.get_editor_property("targets")]))
+    check("lists show the new names", [o.get_name() for o in tab_view.targets_list.items()]
+          == ["CP_M_Base", "CP_Rock_A"])
+    settings.set_editor_property("copy_prefix", "MI_")
+    settings.set_editor_property("copy_suffix", "_copy")
+    settings.set_editor_property("copy_case_sensitive", True)
+    tab_view.mode.on_selection_changed.broadcast("Default", unreal.SelectInfo.DIRECT)
+    check("mode combo back to Default", tab_view.pages.get_active_widget_index() == 0)
     ui._state["tab"] = None
 
     # a stand-alone DetailsView stands in for the one inside the tab

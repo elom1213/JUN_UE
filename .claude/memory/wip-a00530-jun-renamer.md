@@ -27,7 +27,12 @@ EUW 실패 시 모달로 대체. 계획서 `Docs/Plans/A00530_JUNRenamer_EUW_Tab
 설정 패널을 걷어낸다 — **그 전에 계획서**(사용자는 큰 작업 전에 계획서를 원한다). UI 문자열은 영어만
 (사용자 재강조 2026-11-20: 언급하지 않으면 UI 에 한국어 금지).
 
-**미확인 (에디터 눈 확인 대기, 계획서 §6.2)**: 탭이 실제로 뜨는지, **탭을 띄운 채 콘텐츠 브라우저 클릭**,
-탭 안 CallInEditor 버튼 표시, on_property_changed 가 실제 편집에서 오는지. 헤드리스 43/43(5.4 · 5.7)은 로직만 증명.
+**v01.03**: 사용자 스크린샷으로 탭이 실제로 뜨고 파이썬 위젯이 그려지는 것은 확인됨(글자가 커서 에디터 스타일로 교체,
+버린 버튼 콜백이 GC 로 죽던 것 수정). **v01.04**: `Mode:` 콤보로 Default / Copy Name. Copy Name = 공용 `AssetList`
+두 개(Base / Targets, `Sort Base` / `Sort Targets`) + 칸 + 미리보기 + Copy Name 버튼. 설정 패널은 `categories_to_show`
+로 Assets · Rename 만. 사용자는 공용 위젯을 마야 Framework 처럼 키우길 원한다 → `jun_tools/widgets/` · `Docs/Widgets/`.
+
+**미확인 (에디터 눈 확인 대기)**: v01.04 화면 배치(두 리스트 · 모드 전환), 리스트 행 클릭 시 콘텐츠 브라우저 이동.
+헤드리스 71/71(5.4 · 5.7)은 로직만 증명.
 
 관련: [[unreal-python-tool-verify]], [[wip-a00510-bone-viewport]], [[jun-ue-plugin-repo]]

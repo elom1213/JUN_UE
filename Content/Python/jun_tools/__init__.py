@@ -37,6 +37,8 @@ def run(tool_id):
             # 툴 패키지만 비운다. jun_tools 자신은 건드리지 않는다
             # (지금 이 함수가 그 안에서 돌고 있으므로).
             _purge("jun_tools.tools.{}".format(spec.package))
+            # 공용 위젯(jun_tools.widgets)도 비워서 고친 코드가 바로 반영되게 한다.
+            _purge("jun_tools.widgets")
 
         module = importlib.import_module(spec.module)
         return getattr(module, spec.entry)()

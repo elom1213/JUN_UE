@@ -346,6 +346,7 @@ def copy_preview(bases, targets, prefix="", suffix="", search="", replace="",
         new = naming.copy_name(base.get_name(), prefix, suffix, search, replace, case_sensitive)
         folder = target.get_outermost().get_name().rsplit("/", 1)[0]
         row = Row(target.get_name(), folder, target.get_class().get_name(), new, target)
+        row.base_name = base.get_name()    # Copy Name 미리보기의 Base 열
         rows.append(row)
 
     return judge(rows), warnings
