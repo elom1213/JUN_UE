@@ -1,0 +1,97 @@
+AssetClass,NewPrefix,NewSuffix,PrefixesToRemove,SuffixAliasesToRemove,StringReplacements,SearchCase,Priority
+UStaticMesh,SM_,,SM_|Mesh_|SK_,"",,IgnoreCase,100
+USkeletalMesh,SK_,,SKM_|Skel_|Mesh_|SK_,"",,IgnoreCase,100
+USkeleton,SKEL_,,SKEL_|Skeleton_,"",,IgnoreCase,90
+UPhysicsAsset,PHY_,,PHY_|PHYS_|Physics_,"",,IgnoreCase,100
+UMaterial,M_,,Mat_|Material_|MT_|M_,"",,IgnoreCase,80
+UBlueprint,BP_,,BP_|Blueprint_,"",,IgnoreCase,70
+UWidgetBlueprint,WBP_,,WBP_|WidgetBlueprint_,"",,IgnoreCase,70
+UMaterialFunction,MF_,,MF_|MaterialFunction_,"",,IgnoreCase,80
+UMaterialParameterCollection,MPC_,,MPC_|MaterialParameterCollection_,"",,IgnoreCase,80
+
+---
+# Texture Rules - SIMPLIFIED AND CLARIFIED
+UTexture,,,T_|TX_|Tex_|Texture_,,,"",IgnoreCase,100 # High priority general cleanup (remove prefix only)
+
+# Specific Texture Type Rules - 3 letter suffix (Custom)
+UTexture,T_,_DIF,TX_|T_|Tex_|Texture_,D|Diffuse|BaseColor|Albedo|BC|_D|_DIF,_D|_DIF|_BaseColor|_Diffuse|_Albedo,IgnoreCase,90
+UTexture,T_,_NOR,TX_|T_|Tex_|Texture_,N|Normal|NRM|_N|_NOR|_NRM,_N|_NOR|_Normal|_NRM,IgnoreCase,90
+UTexture,T_,_ROG,TX_|T_|Tex_|Texture_,R|Roughness|Rough|Rgh|_R|_ROUGH|_ROU|_ROG,_R|_ROU|_ROG|_Roughness|_ROUGH,IgnoreCase,90
+UTexture,T_,_SPC,TX_|T_|Tex_|Texture_,S|Spec|Specular|_S|_Spec|_SPEC|_SPC,_S|_SPC|_Specular|_SPEC,IgnoreCase,90
+UTexture,T_,_MET,TX_|T_|Tex_|Texture_,Metal|Metallic|M|_Metal|_MET|_M,_M|_MET|_Metallic|_Metal,IgnoreCase,90
+UTexture,T_,_AO,TX_|T_|Tex_|Texture_,AO|AmbientOcclusion|Occlusion|_AO|_AOC|_O,_AO|_AOC|_O|_AmbientOcclusion|_Occlusion,IgnoreCase,90
+UTexture,T_,_ORM,TX_|T_|Tex_|Texture_,ORM|_ORM|OcclusionRoughnessMetallic,_ORM|_OcclusionRoughnessMetallic,IgnoreCase,90
+UTexture,T_,_HIG,TX_|T_|Tex_|Texture_,Height|HIG|DSP|Displacement|_Height|_HIG|_DSP,_HIG|_DSP|_Height|_Displacement,IgnoreCase,90
+UTexture,T_,_EMS,TX_|T_|Tex_|Texture_,E|Emissive|Emis|EMS|_E|_EMI|_EMS,_EMS|_E|_EMI|_Emissive,IgnoreCase,90
+UTexture,T_,_OPC,TX_|T_|Tex_|Texture_,Opacity|OPC|_Opacity|_OPC|_A|_Alpha,_OPC|_Opacity|_A|_Alpha,IgnoreCase,90
+UTexture,T_,_OPM,TX_|T_|Tex_|Texture_,OpacityMask|OPM|_OpacityMask|_OPM,_OPM|_OpacityMask,IgnoreCase,90
+UTexture,T_,_MSK,TX_|T_|Tex_|Texture_,Mask|Masks|_Mask|_MAS|_MSK,_MSK|_MAS|_Mask,IgnoreCase,90
+UTextureCube,TC_,,TC_|TextureCube_|CubeMap_,"",,IgnoreCase,90
+
+---
+# Animation Rules (UE5 Standard)
+UAnimSequence,AS_,,"A_|AS_|Anim_|AnimSeq_",,"",IgnoreCase,70
+UAnimMontage,AM_,,"AM_|Montage_|AnimMontage_",,"",IgnoreCase,70
+UBlendSpace,BS_,,"BS_|BlendSpace_","",,"",IgnoreCase,70
+UBlendSpace1D,BS_,,"BS_|BS1D_|BlendSpace1D_","",,"",IgnoreCase,70
+UAimOffsetBlendSpace,AO_,,"AO_|AimOffset_","",,"",IgnoreCase,70
+UAnimBlueprint,ABP_,,"ABP_|AnimBP_|AnimBlueprint_",,"",IgnoreCase,70
+UAnimComposite,AC_,,"AC_|AnimComposite_",,"",IgnoreCase,70
+
+# Particle/VFX Rules
+UParticleSystem,PS_,_FX,"FX_|PS_",,"",IgnoreCase,60
+UNiagaraSystem,NS_,_FX,"FX_|NS_",,"",IgnoreCase,60
+UNiagaraEmitter,NE_,_FX_Emitter,"FX_Emitter_|NE_",,"",IgnoreCase,60
+
+# Sound Rules
+USoundCue,SC_,_Cue,"Cue_|SC_",,"",IgnoreCase,50
+USoundWave,SW_,_Wave,"Wave_|SW_",,"",IgnoreCase,50
+UReverbEffect,RE_,_Reverb,"Reverb_|RE_",,"",IgnoreCase,50
+
+# Blueprint/Data Rules
+UBlueprint,BP_,"",BP_|BP_,"",,"",IgnoreCase,70
+UDataTable,DT_,,"DT_",,"",IgnoreCase,70
+UCurveTable,CT_,,"CT_",,"",IgnoreCase,70
+UDataAsset,DA_,,"DA_",,"",IgnoreCase,70
+ULiveLinkFramePreProcessor,LLFPP_,,LLFPP_|LiveLinkPreProcessor_,"",,IgnoreCase,70
+
+# UI/Widget Specific Rules
+UWidgetBlueprint,WBP_,,"WBP_|UI_|Widget_|WidgetBP_",,"",IgnoreCase,70
+UFont,Font_,,"Font_|F_",,"",IgnoreCase,60
+USlateWidgetStyleAsset,Style_,,"Style_|WidgetStyle_",,"",IgnoreCase,60
+USlateVectorArtData,SVA_,,"SVA_|VectorArt_",,"",IgnoreCase,60
+
+# Material Instance Rule
+UMaterialInstanceConstant,MI_,"","MI_",,"",IgnoreCase,80
+
+# Cinematic/Sequence Rules
+ULevelSequence,LS_,,"LS_|Seq_|LevelSeq_|Sequence_",,"",IgnoreCase,70
+UCameraAnim,CA_,,"CA_|CameraAnim_",,"",IgnoreCase,70
+UMatineeData,Matinee_,,"Matinee_|M_",,"",IgnoreCase,70
+
+# AI Rules
+UAIController,AIC_,,"AIC_|AIController_",,"",IgnoreCase,70
+UBehaviorTree,BT_,,"BT_|BehaviorTree_",,"",IgnoreCase,70
+UBlackboardData,BB_,,"BB_|Blackboard_",,"",IgnoreCase,70
+UEnvQuery,EQS_,,"EQS_|EnvQuery_|EnvironmentQuery_",,"",IgnoreCase,70
+
+# Miscellaneous Asset Rules
+UCurveFloat,Curve_,,"Curve_|CurveFloat_|CF_",,"",IgnoreCase,60
+UCurveVector,CurveVector_,,"CurveVector_|CV_",,"",IgnoreCase,60
+UCurveLinearColor,CurveColor_,,"CurveColor_|CLC_|CurveLinearColor_",,"",IgnoreCase,60
+UObjectLibrary,OL_,,"OL_|ObjectLibrary_",,"",IgnoreCase,60
+UMediaTexture,MT_,,"MT_|MediaTexture_",,"",IgnoreCase,60
+UMediaPlayer,MP_,,"MP_|MediaPlayer_",,"",IgnoreCase,60
+URenderTarget,RT_,,"RT_|RenderTarget_",,"",IgnoreCase,60
+UTextureRenderTarget2D,RT_,,"RT_|RenderTarget_|RT2D_",,"",IgnoreCase,60
+UCanvasRenderTarget2D,CRT_,,"CRT_|CanvasRT_|CanvasRenderTarget_",,"",IgnoreCase,60
+
+# Paper2D Rules
+UPaperFlipbook,PFB_,,"PFB_|Flipbook_|PaperFlipbook_",,"",IgnoreCase,60
+UPaperSprite,PSS_,,"PSS_|Sprite_|PaperSprite_",,"",IgnoreCase,60
+UPaperTileMap,PTM_,,"PTM_|TileMap_|PaperTileMap_",,"",IgnoreCase,60
+UPaperTileSet,PTS_,,"PTS_|TileSet_|PaperTileSet_",,"",IgnoreCase,60
+
+# Physics Rules
+UPhysicalMaterial,PM_,,"PM_|PhysMat_|PhysicalMaterial_",,"",IgnoreCase,60
+UDestructibleMesh,DM_,,"DM_|DestructibleMesh_",,"",IgnoreCase,60

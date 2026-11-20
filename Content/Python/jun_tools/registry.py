@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Python Script by Ji Hun Park
-# last Update date : 2026-08-24
+# last Update date : 2026-11-20
 #
 # 툴 목록(레지스트리).
 #
@@ -75,6 +75,15 @@ TOOLS = [
         section="Cinematic",
         tooltip="Check the scene folder selected in the Content Browser against the SOP. "
                 "Creates and changes nothing.",
+    ),
+    ToolSpec(
+        tool_id="A00530_jun_renamer",
+        label="JUN Renamer...",
+        module="jun_tools.tools.A00530_jun_renamer.ui",
+        entry="show",
+        section="Asset",
+        tooltip="Batch rename assets: search / replace, prefix / suffix, trim front / rear, "
+                "naming rules, and copy names from Base assets to Target assets.",
     ),
 ]
 

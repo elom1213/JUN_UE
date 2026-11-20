@@ -46,7 +46,19 @@ def apply(self): ...
 파이썬 메타는 `FPyUFunctionDef::ApplyMetaData()` → `UFunction::SetMetaData()` 로 그대로 전달된다.
 **헤드리스로는 버튼이 그려지는지 볼 수 없다** (`-unattended` 면 창 자체를 안 만든다) → 조건만 검사하고 눈으로 확인.
 `@unreal.uclass()` 를 거치면 메서드가 네이티브로 치환돼 `inspect.signature` 가 실패한다(등록됐다는 증거).
-`@unreal.uclass()` 는 모듈이 리로드돼 재등록돼도 문제없다(3회 연속 확인). 오브젝트는 GC 되지 않게 참조를 붙잡을 것.
+`@unreal.uclass()` 는 모듈이 리로드돼 재등록돼도 문제없다(3회 연속 확인) — **단, 그 클래스의 이전 인스턴스가
+아직 살아 있으면 아니다** (2026-11-20, A00530). 엔진이 재인스턴싱하며 PythonScriptPlugin ensure
+`PySelf->ob_type == PyType` (PyWrapperObject.cpp:2031, `..._REINST_1`) 가 뜬다. 대책: 생성한 타입을
+툴 패키지 밖(`jun_tools.tools.__dict__`)에 캐시해 **세션당 1회만 등록**하고, 메서드 몸체는
+`importlib.import_module(__name__).func(self)` 로 최신 모듈에 디스패치 → DEV_MODE 리로드 코드도 그대로 반영.
+오브젝트는 GC 되지 않게 참조를 붙잡을 것.
+
+**디테일 뷰 갱신**: CallInEditor 실행 후 강제 새로고침은 없지만 `FPropertyNode::EnsureDataIsValid()` 가 틱마다
+배열 크기 변화(`ArraySizeChanged`)를 감지해 다시 그린다 → 버튼에서 배열 프로퍼티를 갱신해 결과 표시로 쓸 수 있다.
+파이썬 uproperty 는 항상 `CPF_Edit` 이고 `EditConst` 를 줄 수 없다(메타로도 안 된다).
+**에셋 리네임**: `AssetTools.rename_assets([AssetRenameData])` 는 참조하는 에셋까지 고쳐 저장한다(헤드리스 실측:
+더티 0, 리디렉터 없음). `FixupReferencers` 는 파이썬 미노출. 클래스 판정은 로드 없이
+`AssetRegistry.get_ancestor_class_names(asset_class_path)`.
 
 **파이썬 클래스가 없는 UObject 접근**: `unreal.find_object(None, "/Script/<Module>.Default__<Class>")` 로
 CDO 를 잡으면 된다. 단 그때는 프로퍼티 이름이 **C++ 원본 이름**(snake_case 아님). `save_config` 는 없다.

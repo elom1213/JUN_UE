@@ -71,6 +71,9 @@ UnrealEditor-Cmd.exe <Project>.uproject -run=pythonscript -script="<verify.py>" 
 - **C++ 없이 입력 위젯** — `@unreal.uenum()` + `unreal.uvalue()` → 드롭다운,
   `unreal.uproperty(bool)` → 체크박스로 놓고 `unreal.EditorDialog.show_object_details_view()` 로 띄운다.
   모달이고 **디테일 뷰라 실시간 반영은 불가** → OK 에 일괄 적용. 오브젝트는 GC 되지 않게 참조를 붙잡을 것.
+- **uclass 재등록 ensure** — DEV_MODE 리로드마다 `@unreal.uclass()` 를 다시 만들면 살아 있는 이전 인스턴스가
+  재인스턴싱되며 `PySelf->ob_type == PyType` ensure 가 뜬다. 타입은 세션당 1회만 등록하고 메서드는 최신 모듈로
+  디스패치한다 (A00530 `ui._types()` / `_ui()` 참고).
 
 ## 4. 작성 규칙
 

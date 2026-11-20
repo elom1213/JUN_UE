@@ -2,7 +2,7 @@
 title: 작업 일지 (WORKLOG) — Unreal
 aliases: [WORKLOG, 작업일지, devlog, UE 작업일지]
 tags: [worklog, unreal, unreal-python]
-updated: 2026-09-01
+updated: 2026-11-20
 ---
 
 # 작업 일지 (WORKLOG) — Unreal
@@ -16,7 +16,36 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ---
 
-## 2026-09-01 (오늘)
+## 2026-11-20 (오늘)
+
+> [!summary] `A00530_jun_renamer` **JUN Renamer — 사내 Asset Renamer 이식 + 마야 NamingTool 기능 추가** (플러그인 v01.03→01.04, 툴 v01.00)
+- 요청: MANUProject `Tools > Asset Renamer` 를 **JUN_Renamer** 로 옮기고, 마야 `A00330_NamingTool` 의
+  **Quick Rename 앞/뒤 한 글자 지우기**와 **Copy Name(Base → Targets, Prefix · Set suffix · Search · Replace)** 를 더한다.
+- 원본은 `MANUEditor` 의 **C++ Slate 탭**(`SMANUAssetRenamerWidget`, 1149 줄)이다. JUN_UE 는 C++ 모듈이 없으니
+  A00510 · A00520 과 같은 **디테일 뷰 다이얼로그 + `CallInEditor` 버튼**으로 다시 짰다. 로직은 셋으로 갈랐다 —
+  `naming.py`(문자열 규칙, unreal 비의존) · `convention.py`(CSV 규칙, unreal 비의존) · `core.py`(에셋 수집 · 판정 · 실행).
+  앞 둘은 일반 파이썬으로 바로 테스트된다.
+- **모달 창이라 콘텐츠 브라우저를 못 누른다** — 그래서 ① 창을 열 때 선택을 바로 불러오고 ② 입력값 · 목록을
+  창 밖(`jun_tools.tools` 모듈)에 남겨 "Base 고르고 열기 → 닫기 → Targets 고르고 열기" 가 되게 했다.
+  Base / Targets 는 에셋 선택 칸 배열이라 창 안에서도 고르고 끌어서 순서를 바꾼다.
+- **`-1 Front` / `-1 Rear` 는 즉시 리네임이 아니라 횟수 누적 + 미리보기**로 바꿨다. 에셋 리네임은 디스크 저장 ·
+  참조 수정이 따라오는 무거운 작업이라 글자마다 저장을 반복하지 않는다. 실행 뒤 횟수는 0 으로 돌린다.
+- **`Set suffix` → `Suffix`** — 마야에서 세트만 받던 이유(DG 노드 이름 충돌)가 언리얼엔 없다. 같은 이름을 못 쓰는
+  경우는 "같은 폴더" 이고 그건 미리보기의 `Name taken` 이 잡는다.
+- **엔진 소스로 확인한 것**: CallInEditor 실행 뒤 디테일 뷰를 강제로 새로 그리지 않지만,
+  `FPropertyNode::EnsureDataIsValid()` 가 틱마다 배열 크기 변화를 보고 다시 그린다 → 미리보기 배열을 버튼에서 갱신해도 된다.
+  `FixupReferencers` 는 UFUNCTION 이 아니라 파이썬에서 못 부른다.
+- **헤드리스로 확인한 것**: 참조된 머티리얼 이름을 바꾸면 엔진이 인스턴스를 고쳐 저장한다(더티 0, 리디렉터 없음).
+  원본의 `SaveDirtyPackages`(전부 저장)는 필요 없어서 **바꾼 에셋만 저장**하도록 좁혔다.
+- **함정 하나 발견** — DEV_MODE 리로드마다 uclass 를 다시 등록하면, GC 안 된 이전 인스턴스를 엔진이 재인스턴싱하며
+  PythonScriptPlugin ensure(`PySelf->ob_type == PyType`)가 뜬다. 클래스는 세션당 한 번만 등록하고 버튼은
+  `importlib` 로 최신 모듈 함수를 부르게 했다.
+- 원본 CSV 규칙의 버릇(텍스처가 전부 `_DIF`, WBP 가 `BP_`)은 **그대로 옮기고 기본값을 껐다** — 고치는 건 CSV 의 몫.
+- 검증: `verify_a00530_renamer.py` 헤드리스 **31/31**. 창 모양은 에디터에서 확인 필요. #A00530
+
+---
+
+## 2026-09-01
 
 > [!summary] `A00510_bone_viewport` **창을 닫지 않는 Apply 버튼** (플러그인 v01.02→01.03, 툴 v01.00→01.01)
 - 요청은 한 줄이었다 — *"OK 를 누르면 적용되고 창이 닫힌다. Apply 같은 걸 눌러 적용하되 창은

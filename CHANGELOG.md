@@ -1,5 +1,27 @@
 # CHANGELOG — JUNTools
 
+## v01.04 (2026-11-20)
+
+### Added
+- `A00530_jun_renamer` — **JUN Renamer** (`Tools > JUN > Asset > JUN Renamer...`). 에셋 일괄 이름 변경.
+  - MANUProject `Tools > Asset Renamer`(MANUEditor C++ Slate 위젯)를 파이썬 디테일 뷰 다이얼로그로 이식 —
+    불러오기(선택 · 선택 폴더 · /Game 전체) · 경로/이름 필터 · Search/Replace(Anywhere / Prefix / Suffix) ·
+    Prefix · Suffix · 네이밍 규칙(CSV) · 텍스트 정리 · 미리보기 · 실행.
+  - **Trim Front / Trim Rear** + `-1 Front` / `-1 Rear` 버튼 — 마야 A00330 Quick Rename 의 앞/뒤 한 글자 지우기.
+    누를 때마다 횟수가 쌓이고 미리보기가 갱신되며, `Rename` 한 번으로 실행한다.
+  - **Copy Name** — 마야 A00330 Copy Name 이식. `Targets[i] ← Prefix + (Search/Replace 한) Base[i] + Suffix`.
+  - 미리보기 상태: `Ready` / `No change` / `Name taken` / `empty name` / `invalid character` — 쓸 수 없는 행은 건너뛴다.
+  - 저장은 **바꾼 에셋만**. 원본은 에디터의 더티 패키지를 전부 저장했다.
+  - 네이밍 규칙은 로드 없이 **에셋 레지스트리의 클래스 · 조상 클래스**로 판정. 기본값은 꺼짐 —
+    원본 CSV 의 버릇(텍스처 `_DIF`, WBP → `BP_`)을 그대로 옮겼기 때문 (툴 문서 §6).
+- `Config/jun_asset_rename_rules.csv` — 원본 `MANUEditor/config/AssetRenameRules.csv` 사본.
+
+### Verified
+- `Docs/verify/verify_a00530_renamer.py` — UE 5.7 헤드리스 **31/31 통과**. 스크래치 프로젝트에서 머티리얼 ·
+  머티리얼 인스턴스를 만들어 실제로 이름을 바꾸고 디스크까지 확인. 참조된 에셋 리네임 후 참조 쪽이 새 이름을
+  가리키고 더티 패키지 0 개. DEV_MODE 리로드 후에도 상태 유지 · 클래스 재등록 없음.
+  창 모양과 버튼 배치는 헤드리스로 볼 수 없다 — 에디터에서 눈으로 확인 필요.
+
 ## v01.03 (2026-09-01)
 
 ### Changed

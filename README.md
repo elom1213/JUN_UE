@@ -67,6 +67,7 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 | Animation | Show All Bones | 눈 아이콘 > Bones > All Hierarchy 를 클릭 한 번으로 |
 | Cinematic | Cinematic Sequence Builder... | 씬 하나의 MSEQ / CSEQ / SSEQ 구조를 SOP 규격대로 일괄 생성 ([문서](Docs/Tools/A00520_CinematicSequenceBuilder.md)) |
 | Cinematic | Validate Cinematic Structure | 선택한 씬 폴더를 SOP 와 대조해 리포트만 낸다 (쓰기 없음) |
+| Asset | JUN Renamer... | 에셋 일괄 이름 변경 — Search/Replace · Prefix/Suffix · 앞뒤 글자 지우기 · 네이밍 규칙 · Base→Targets 이름 복사 ([문서](Docs/Tools/A00530_JUNRenamer.md)) |
 | Developer | Reload JUN Tools | 에디터 재시작 없이 전체 파이썬 모듈 재로드 |
 
 로그는 **Output Log**의 `LogPython` 카테고리에서 확인한다.
@@ -79,7 +80,8 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 JUN_UE/
 ├─ JUNTools.uplugin              # 플러그인 식별자 (이름 변경 금지)
 ├─ Config/                       # 툴이 읽는 규격 데이터 (코드에 규칙을 박지 않는다)
-│  └─ jun_cinematic_sop.json     #   A00520 — 이름 템플릿 · SSEQ 7종 · SOP 컬러코드
+│  ├─ jun_cinematic_sop.json     #   A00520 — 이름 템플릿 · SSEQ 7종 · SOP 컬러코드
+│  └─ jun_asset_rename_rules.csv #   A00530 — 에셋 타입별 접두/접미 규칙
 ├─ Docs/
 │  ├─ 00_UE_Tool_Plugin_Guide.md # 설계 가이드 · 판단 근거 · 함정
 │  ├─ 01_Junction_Guide.md       # junction 이란 / 복사 대신 링크로 잇기
