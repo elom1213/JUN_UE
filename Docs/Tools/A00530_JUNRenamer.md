@@ -2,10 +2,12 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.00 (2026-11-20)
+- **버전**: v01.01 (2026-11-20) — 모달 창 → **도킹 탭** (창을 띄운 채 콘텐츠 브라우저 사용)
+- **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
 - **규칙 파일**: `Config/jun_asset_rename_rules.csv`
+- **에셋**: `Content/A00530_jun_renamer/EUW_JUNRenamer.uasset` (`/JUNTools/A00530_jun_renamer/EUW_JUNRenamer`)
 
 ---
 
@@ -17,15 +19,16 @@
 | **Trim Front / Trim Rear** + `-1 Front` / `-1 Rear` 버튼 | 마야 `A00330_NamingTool` > Quick Rename > Selection 의 `-1 Front` / `-1 Rear` |
 | **Copy Name** (Base → Targets, Prefix · Suffix · Search · Replace) | 마야 `A00330_NamingTool` > Copy Name |
 
-원본은 C++ 위젯이지만 JUN_UE 는 C++ 모듈이 없는 플러그인이다. 그래서 다른 JUN 툴과 같은 방식 —
-파이썬 uclass 를 **디테일 뷰 다이얼로그**로 띄우고, 창 안의 **버튼**(`CallInEditor`)으로 실행한다.
+원본은 C++ 위젯이지만 JUN_UE 는 C++ 모듈이 없는 플러그인이다. 그래서 화면은 파이썬 uclass 를
+**디테일 패널**로 그린 것이고, 실행은 그 안의 **버튼**(`CallInEditor`)이다.
+v01.01 부터 이 디테일 패널을 **Editor Utility Widget 탭** 안에 띄운다 — 아래 2.1.
 
 ---
 
 ## 2. 화면
 
 ```
-┌ JUN Renamer ───────────────────────────────────────────────────────┐
+┌ JUN Renamer (탭) ──────────────────────────────────────────────────┐
 │ ▼ Assets                                                           │
 │   Loaded            12 asset(s) | 12 shown | 3 will be renamed      │
 │   Use Path Filter   [ ]     Path Filter [            ]              │
@@ -45,14 +48,29 @@
 │   Case Sensitive [x]   Copy Preview ▶ 2 elements                    │
 │   [Base <- Selection] [Targets <- Selection] [Sort Base]            │
 │   [Sort Targets] [Preview Copy] [Copy Name]                         │
-└──────────────────────────────────────────────────────── [OK][Cancel]┘
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 (실제 배치는 디테일 뷰가 정한다 - 위는 구성만 보인 것)
 
 - **미리보기 한 줄**: `Ready      SM_Rock  ->  SM_Rock_01    (StaticMesh, /Game/Env)`
-- **OK / Cancel 은 아무것도 실행하지 않는다.** 둘 다 입력값을 남기고 창을 닫을 뿐이다.
-  이름 변경은 `Rename` / `Copy Name` 버튼으로만 한다.
+- 이름 변경은 `Rename` / `Copy Name` 버튼으로만 한다.
+- **탭을 닫아도 입력값과 목록은 남는다**(에디터를 끄면 사라진다). 메뉴를 다시 누르면 같은 값으로 열린다.
+
+### 2.1 탭으로 열린다 (v01.01)
+
+- 레벨 에디터의 **도킹 탭**이라 모달이 아니다 — **탭을 띄운 채 콘텐츠 브라우저를 클릭 · 선택**할 수 있다.
+  다른 탭처럼 끌어서 붙이거나 떼어 쓸 수 있다.
+- 메뉴를 다시 누르면 새 탭을 만들지 않고 **열린 탭을 앞으로** 가져온다.
+- 구조: EUW `EUW_JUNRenamer` 의 루트 위젯 `DetailsView` 에 설정 오브젝트를 `set_object()` 로 꽂는다.
+  탭 제목은 EUW 의 Class Defaults > `Tab Display Name`(= `JUN Renamer`).
+- **미리보기가 저절로 바뀐다** — 칸 편집이 끝나면(Enter · 포커스 이동 · 체크 · 드롭다운) 다시 계산한다.
+  `Preview` / `Preview Copy` 버튼은 칸 밖의 변화(다른 곳에서 에셋 이름이 바뀜 등)를 반영할 때 쓴다.
+- **EUW 를 못 찾거나 탭을 못 띄우면** v01.00 의 모달 창으로 대신 연다(Output Log 에 경고).
+  모달 창에서는 미리보기가 버튼으로만 갱신되고, 떠 있는 동안 콘텐츠 브라우저를 누를 수 없다.
+
+> ⚠️ **EUW 는 UE 5.4 에디터에서만 고치고 저장할 것.** 5.5 이상에서 저장하면 그 버전으로 다시 저장되어
+> 5.4 에서 열 수 없다. (코드는 실패하면 모달 창으로 대체되지만 탭은 쓸 수 없게 된다.)
 
 ---
 
@@ -61,11 +79,12 @@
 ### 3.1 Rename (원본 Asset Renamer)
 
 1. 콘텐츠 브라우저에서 에셋(또는 폴더)을 고르고 `Tools > JUN > Asset > JUN Renamer...`.
-   **선택한 에셋이 있으면 창이 열리면서 바로 불러온다.**
+   목록이 비어 있고 선택한 에셋이 있으면 **열면서 바로 불러온다**(이미 불러온 목록은 덮지 않는다).
+   탭을 띄운 채 다른 에셋을 고르고 **`Load Selected`** 를 눌러도 된다.
    - `Load Folder` — 선택한 폴더 아래 전부(하위 폴더 포함)
    - `Load All /Game` — 프로젝트 전체. 1000 개가 넘으면 한 번 묻는다
    - 리디렉터와 레벨(World)은 원본처럼 뺀다(폴더 · 전체 불러오기)
-2. 입력칸을 채우고 **`Preview`** → `Rename Preview` 배열에 결과가 나온다.
+2. 입력칸을 채우면 `Rename Preview` 배열에 결과가 나온다(칸 편집이 끝날 때 자동 · `Preview` 버튼으로도).
 3. **`Rename`** → 확인 창 → Ready 행만 이름을 바꾸고 저장한다.
 
 **새 이름 계산 순서**
@@ -98,12 +117,11 @@ Trim Front/Rear → Search/Replace → Prefix → Suffix → (수동 입력이 �
 
 `Targets[i]` 의 이름을 `Prefix + (Search/Replace 한) Base[i] 이름 + Suffix` 로 바꾼다. 순서 기준.
 
-1. 콘텐츠 브라우저에서 **Base** 에셋을 고르고 창 열기 → **`Base <- Selection`** → 창 닫기(OK).
-2. **Targets** 에셋을 고르고 창 열기 → **`Targets <- Selection`**.
-   - 입력값과 Base / Targets 는 **창을 닫아도 남는다**(에디터를 끄면 사라진다).
-   - 창 안에서 배열 칸마다 에셋을 직접 고르거나, 끌어서 순서를 바꿀 수도 있다.
+1. 탭을 띄운 채 콘텐츠 브라우저에서 **Base** 에셋을 고르고 **`Base <- Selection`**.
+2. **Targets** 에셋을 고르고 **`Targets <- Selection`**.
+   - 탭 안에서 배열 칸마다 에셋을 직접 고르거나, 끌어서 순서를 바꿀 수도 있다.
    - 콘텐츠 브라우저 선택 순서가 원하는 순서가 아니면 `Sort Base` / `Sort Targets`(이름순).
-3. `Prefix` / `Suffix` / `Search` / `Replace` 를 채우고 **`Preview Copy`** → `Copy Preview`.
+3. `Prefix` / `Suffix` / `Search` / `Replace` 를 채우면 `Copy Preview` 가 바뀐다(자동 · `Preview Copy` 버튼으로도).
 4. **`Copy Name`** → 확인 창 → 실행.
 
 | 입력 | 동작 |
@@ -183,12 +201,14 @@ CSV 에 적힌 클래스가 엔진에 있으면 그 규칙이 실제로 적용�
 
 ---
 
-## 7. 제약 (파이썬 다이얼로그라서)
+## 7. 제약 (파이썬 + 디테일 패널이라서)
 
 | 제약 | 이유 | 대응 |
 |------|------|------|
-| 창이 떠 있는 동안 콘텐츠 브라우저를 클릭할 수 없다 | 디테일 뷰 다이얼로그는 **모달**이다(`EditorAddModalWindow`) | 열 때 선택을 바로 불러온다 · 입력값과 목록은 창을 닫아도 남는다 · Base / Targets 는 창 안에서 에셋을 고를 수 있다 |
-| 입력칸을 고쳐도 미리보기가 저절로 바뀌지 않는다 | 파이썬은 `PostEditChangeProperty` 를 받을 수 없다 | 버튼을 누를 때 다시 계산한다. **`Rename` / `Copy Name` 은 실행 직전에 반드시 다시 계산** — 오래된 미리보기로 바뀌는 일은 없다 |
+| ~~창이 떠 있는 동안 콘텐츠 브라우저를 클릭할 수 없다~~ | v01.00 의 모달 다이얼로그 탓 | **v01.01 에서 해결** — EUW 탭 (2.1). 모달 대체 창에서만 남는다 |
+| 미리보기는 칸 편집이 **끝났을 때** 바뀐다 (글자마다가 아님) | 엔진이 `on_property_changed` 를 편집 완료 시점에 보낸다 | **`Rename` / `Copy Name` 은 실행 직전에 반드시 다시 계산** — 오래된 미리보기로 바뀌는 일은 없다 |
+| 프로퍼티 · 버튼 **구성**을 바꾸면 에디터 재시작 | 탭이 붙잡은 오브젝트 때문에 클래스를 세션당 한 번만 등록한다 (다시 등록하면 엔진 ensure) | 코드 수정은 DEV_MODE / `Reload JUN Tools` 로 그대로 반영된다 |
+| EUW 를 5.5+ 에서 저장하면 5.4 에서 못 연다 | 언리얼 에셋은 하위 호환만 된다 | EUW 는 5.4 에서만 고친다 (2.1) |
 | 미리보기 배열을 고칠 수 있게 보인다 | 파이썬 uproperty 에 `EditConst` 플래그를 줄 수 없다 | 표시 전용 — 고쳐도 아무 일도 없고 다음 Preview 가 덮어쓴다 |
 | 원본의 미리보기 표(색 · 더블클릭으로 위치 찾기) | Slate 리스트 뷰는 C++ 전용 | 상태 글자 + 경로를 한 줄에 |
 
@@ -207,4 +227,10 @@ UnrealEditor-Cmd.exe <Scratch>.uproject -PLUGIN="<JUN_UE>/JUNTools.uplugin" ^
 ```
 
 `/Game/JUNRenamerTest` 에 머티리얼 · 머티리얼 인스턴스를 만들어 실제로 이름을 바꾸고 디스크까지 확인한 뒤 지운다.
-**창의 모양과 버튼 배치는 헤드리스로 볼 수 없다**(`-unattended` 는 창을 만들지 않는다) — 에디터에서 눈으로 확인.
+v01.01: EUW 구조(루트 `DetailsView` · 변수 노출 · 탭 제목), `set_object`, 칸 편집 이벤트 → 미리보기 갱신,
+탭을 못 띄울 때 모달 대체, DEV_MODE · `Reload JUN Tools` 뒤에도 클래스 · 오브젝트 · 값이 유지되는지까지 본다.
+UE 5.4.4 · 5.7.4 에서 **43/43** (2026-11-20).
+
+**탭이 실제로 뜨는지 · 콘텐츠 브라우저를 누를 수 있는지 · 버튼이 보이는지는 헤드리스로 볼 수 없다** —
+커맨드렛은 탭을 아예 등록하지 않는다. 에디터 체크리스트는 계획서 §6.2
+([../Plans/A00530_JUNRenamer_EUW_Tab_Plan.md](../Plans/A00530_JUNRenamer_EUW_Tab_Plan.md)).

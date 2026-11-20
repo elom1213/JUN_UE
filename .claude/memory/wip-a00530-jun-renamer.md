@@ -1,12 +1,17 @@
 ---
 name: wip-a00530-jun-renamer
-description: "JUN_UE A00530 JUN Renamer - MANUEditor Asset Renamer(C++) 파이썬 이식 + A00330 Trim/Copy Name. 설계 판단과 미확인 사항"
+description: "JUN_UE A00530 JUN Renamer - Asset Renamer 이식 + Trim/Copy Name, v01.01 부터 EUW 도킹 탭. 설계 판단과 에디터 미확인 사항"
 metadata:
   type: project
 ---
 
-`JUN_UE` 의 A00530_jun_renamer (툴 v01.00 / 플러그인 v01.04, 2026-11-20). 원본은 MANUProject
+`JUN_UE` 의 A00530_jun_renamer (툴 v01.01 / 플러그인 v01.05, 2026-11-20). 원본은 MANUProject
 `Plugins/MANUEditor` 의 `SMANUAssetRenamerWidget`(C++ Slate) + `AssetRenameRules.csv`.
+
+**사용자 최우선 요구: 창을 띄운 채 콘텐츠 브라우저를 클릭할 수 있어야 한다** → v01.01 에서 모달 다이얼로그를
+EUW 도킹 탭으로 바꿨다. `Content/A00530_jun_renamer/EUW_JUNRenamer`(사용자가 **UE 5.4** 에디터에서 제작,
+루트 = 변수 `DetailsView` 하나, Tab Display Name = `JUN Renamer`) 에 설정 오브젝트를 `set_object()`.
+EUW 실패 시 모달로 대체. 계획서 `Docs/Plans/A00530_JUNRenamer_EUW_Tab_Plan.md`.
 
 **설계 판단 (사용자가 바꾸자고 하면 여기부터)**
 - `-1 Front` / `-1 Rear` 는 마야처럼 즉시 리네임이 **아니다** — `Trim Front/Rear` 횟수를 올리고 미리보기,
@@ -15,7 +20,9 @@ metadata:
 - `Use Naming Convention` 기본 **꺼짐**(원본은 켜짐) — 원본 CSV 의 버릇(텍스처 줄 열 밀림으로 전부 `_DIF`,
   WBP → `BP_`)을 그대로 옮겼기 때문. 고치려면 CSV 수정.
 - 저장은 바꾼 에셋만 (원본 `SaveDirtyPackages` 전체 저장을 좁힘).
+- 열 때 선택 자동 불러오기는 목록이 비었을 때만. 클래스 · 오브젝트는 세션 모듈 `_jun_tools_session` 에.
 
-**미확인**: 실제 에디터에서 창 모양 · 버튼 배치 · 배열 미리보기 가독성. 헤드리스 31/31 은 로직만 증명.
+**미확인 (에디터 눈 확인 대기, 계획서 §6.2)**: 탭이 실제로 뜨는지, **탭을 띄운 채 콘텐츠 브라우저 클릭**,
+탭 안 CallInEditor 버튼 표시, on_property_changed 가 실제 편집에서 오는지. 헤드리스 43/43(5.4 · 5.7)은 로직만 증명.
 
 관련: [[unreal-python-tool-verify]], [[wip-a00510-bone-viewport]], [[jun-ue-plugin-repo]]

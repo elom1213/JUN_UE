@@ -53,6 +53,13 @@ def apply(self): ...
 `importlib.import_module(__name__).func(self)` 로 최신 모듈에 디스패치 → DEV_MODE 리로드 코드도 그대로 반영.
 오브젝트는 GC 되지 않게 참조를 붙잡을 것.
 
+**모덜리스 창 = EUW + DetailsView (2026-11-20, A00530)**: 파이썬으로 위젯 트리는 못 만든다(`WidgetTree` protected) →
+사람이 EUW 에 루트 `DetailsView` 하나를 넣어 두면, `EditorUtilitySubsystem.spawn_and_register_tab(bp)` → 위젯의
+`DetailsView` 변수 → `set_object(파이썬 uclass 인스턴스)`. `on_property_changed` 는 `add_callable` 로 받는다.
+탭 ID 는 `<에셋경로>_ActiveTab` 이라 다시 부르면 기존 탭을 띄운다. **커맨드렛은 탭을 등록하지 않는다**(`!IsRunningCommandlet()`)
+→ 헤드리스로는 `None`. EUW 구조 검사는 `ObjectIterator(unreal.Widget)` 로 `<EUW>_C:WidgetTree.*` 템플릿을 훑는다.
+**폴더가 junction 인지는 폴더 자체를 볼 것** — `Get-Item <폴더> | Select LinkType` (안 목록만 보고 복사본으로 오판한 적 있음).
+
 **디테일 뷰 갱신**: CallInEditor 실행 후 강제 새로고침은 없지만 `FPropertyNode::EnsureDataIsValid()` 가 틱마다
 배열 크기 변화(`ArraySizeChanged`)를 감지해 다시 그린다 → 버튼에서 배열 프로퍼티를 갱신해 결과 표시로 쓸 수 있다.
 파이썬 uproperty 는 항상 `CPF_Edit` 이고 `EditConst` 를 줄 수 없다(메타로도 안 된다).

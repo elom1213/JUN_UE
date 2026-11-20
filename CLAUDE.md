@@ -19,13 +19,16 @@
 ```
 JUN_UE/                                  = <Project>/Plugins/JUNTools/
 ├── JUNTools.uplugin                     플러그인 식별자. 에셋 마운트 경로 /JUNTools/ — 변경 금지
-├── Content/Python/
-│   ├── init_unreal.py                   플러그인 활성화 시 자동 실행
-│   └── jun_tools/
-│       ├── registry.py                  툴 한 줄 등록
-│       └── tools/A00NNN_<name>/
-│           ├── core.py                  로직
-│           └── ui.py                    다이얼로그
+├── Content/
+│   ├── A00NNN_<name>/                   툴 전용 에셋 (EUW 등). 폴더 이름 = 파이썬 툴 폴더 이름
+│   ├── Shared/                          여러 툴이 함께 쓰는 에셋
+│   └── Python/
+│       ├── init_unreal.py               플러그인 활성화 시 자동 실행
+│       └── jun_tools/
+│           ├── registry.py              툴 한 줄 등록
+│           └── tools/A00NNN_<name>/
+│               ├── core.py              로직
+│               └── ui.py                UI (디테일 패널 · EUW 탭)
 └── Docs/
     ├── 00_UE_Tool_Plugin_Guide.md       ★ 설계 근거 · 함정. 작업 전 열어볼 것
     ├── 01_Junction_Guide.md
@@ -34,6 +37,10 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
 ```
 
 새 툴은 `tools/A00NNN_<name>/` 에 `core.py` + `ui.py` 를 만들고 `registry.py` 에 한 줄 등록한다.
+
+**에셋(.uasset) 규칙** — 툴 전용 에셋은 `Content/A00NNN_<name>/`(파이썬 툴 폴더와 같은 이름), 공용은 `Content/Shared/`.
+지원 하한이 **UE 5.4** 라서 에셋은 **5.4 에디터에서 만들고 저장**한다(5.5+ 에서 저장하면 5.4 에서 못 연다).
+모달이 아닌 창이 필요하면 EUW 루트에 `DetailsView` 위젯 하나를 두고 파이썬 설정 오브젝트를 `set_object()` 한다 (A00530 참고).
 
 ## 2. 검증 — 헤드리스 커맨드렛
 
@@ -72,8 +79,9 @@ UnrealEditor-Cmd.exe <Project>.uproject -run=pythonscript -script="<verify.py>" 
   `unreal.uproperty(bool)` → 체크박스로 놓고 `unreal.EditorDialog.show_object_details_view()` 로 띄운다.
   모달이고 **디테일 뷰라 실시간 반영은 불가** → OK 에 일괄 적용. 오브젝트는 GC 되지 않게 참조를 붙잡을 것.
 - **uclass 재등록 ensure** — DEV_MODE 리로드마다 `@unreal.uclass()` 를 다시 만들면 살아 있는 이전 인스턴스가
-  재인스턴싱되며 `PySelf->ob_type == PyType` ensure 가 뜬다. 타입은 세션당 1회만 등록하고 메서드는 최신 모듈로
-  디스패치한다 (A00530 `ui._types()` / `_ui()` 참고).
+  재인스턴싱되며 `PySelf->ob_type == PyType` ensure 가 뜬다. 타입 · 오브젝트는 jun_tools **밖**의 세션 모듈
+  (`sys.modules["_jun_tools_session"]`)에 두어 세션당 1회만 등록하고, 메서드 · 이벤트는 최신 모듈로 디스패치한다
+  (A00530 `ui._session()` / `_ui()` 참고). `Reload JUN Tools` 도 견딘다.
 
 ## 4. 작성 규칙
 

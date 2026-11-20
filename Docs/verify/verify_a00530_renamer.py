@@ -173,29 +173,81 @@ def main():
     lines = list(settings.get_editor_property("copy_preview"))
     check("count mismatch warns", lines and lines[0].startswith("[WARN]"), lines[0] if lines else "")
 
-    # state survives a new settings object (= reopening the window)
-    again = ui.make_settings()
-    check("state persists", again.get_editor_property("copy_prefix") == "MI_"
+    # one settings object per session (the tab and the dialog share it)
+    again = ui.settings()
+    check("one settings object per session", again is settings
+          and again.get_editor_property("copy_prefix") == "MI_"
           and len(again.get_editor_property("base")) == 2)
 
-    # menu entry path: jun_tools.run() -> ui.show(). -unattended returns from the dialog at once.
-    import jun_tools
-    jun_tools.run("A00530_jun_renamer")
+    # --- v01.01: EUW tab -------------------------------------------------------
+    blueprint = unreal.load_asset(ui.EUW_PATH)
+    check("EUW loads", blueprint is not None, ui.EUW_PATH)
+    cdo = unreal.get_default_object(blueprint.generated_class())
+    check("EUW is an EditorUtilityWidget", isinstance(cdo, unreal.EditorUtilityWidget))
+    check("EUW tab title", str(cdo.get_editor_property("tab_display_name")) == "JUN Renamer")
+    templates = [w for w in unreal.ObjectIterator(unreal.Widget)
+                 if "EUW_JUNRenamer_C:WidgetTree" in w.get_path_name()]
+    check("EUW root widget is DetailsView",
+          len(templates) == 1 and isinstance(templates[0], unreal.DetailsView)
+          and templates[0].get_name() == ui.EUW_DETAILS_VIEW and templates[0].get_parent() is None,
+          str([(type(w).__name__, w.get_name()) for w in templates]))
+    cdo.get_editor_property(ui.EUW_DETAILS_VIEW)
+    check("DetailsView exposed as variable", True)
+
+    # a stand-alone DetailsView stands in for the one inside the tab
+    view = unreal.new_object(unreal.DetailsView)
+    view.set_object(settings)
+    check("set_object takes the settings object", view.get_object() == settings)
+    check("bind connects once", ui.bind(view) is True and ui.bind(view) is False)
+
+    settings.set_editor_property("targets", [child, rock_b])
+    settings.set_editor_property("copy_prefix", "LIVE_")
+    view.get_editor_property("on_property_changed").broadcast("copy_prefix")
+    lines = list(settings.get_editor_property("copy_preview"))
+    check("editing a Copy Name field refreshes Copy Preview", any("LIVE_" in l for l in lines), str(lines[:1]))
+
+    settings.set_editor_property("name_filter", "")
+    settings.set_editor_property("search", "")
+    settings.set_editor_property("prefix", "LIVE_")
+    view.get_editor_property("on_property_changed").broadcast("prefix")
+    lines = list(settings.get_editor_property("rename_preview"))
+    check("editing a Rename field refreshes Rename Preview", any("->  LIVE_" in l for l in lines), str(lines[:1]))
+
+    before = list(settings.get_editor_property("rename_preview"))
+    settings.set_editor_property("prefix", "")
+    ui.on_property_changed("rename_preview")
+    check("preview array edits are ignored", list(settings.get_editor_property("rename_preview")) == before)
+    settings.set_editor_property("copy_prefix", "MI_")
+
+    # menu entry path: jun_tools.run() -> ui.show(). A commandlet never registers the tab,
+    # so show() must fall back to the dialog (which -unattended closes at once).
     import sys
+    import jun_tools
+    result = jun_tools.run("A00530_jun_renamer")
+    check("show() falls back to the dialog when no tab can open", result == "modal", str(result))
     fresh_ui = sys.modules["jun_tools.tools.A00530_jun_renamer.ui"]
     check("DEV_MODE reload re-imported ui", fresh_ui is not ui)
     check("uclass registered once per session (no re-instancing)",
           fresh_ui._types()[0] is ui._types()[0])
-    check("show() released its object", not fresh_ui._ALIVE)
-    # button on an object made by the OLD module runs the NEW module's code
     called = []
     original = fresh_ui.preview_copy
     fresh_ui.preview_copy = lambda target: called.append(1) or original(target)
     settings.preview_copy()
     fresh_ui.preview_copy = original
     check("button dispatches to reloaded module", called == [1])
-    after = ui.make_settings()
-    check("state survives show() + DEV_MODE reload", after.get_editor_property("copy_prefix") == "MI_")
+    called = []
+    original = fresh_ui.on_property_changed
+    fresh_ui.on_property_changed = lambda name: called.append(str(name))
+    view.get_editor_property("on_property_changed").broadcast("prefix")
+    fresh_ui.on_property_changed = original
+    check("field-edit event dispatches to reloaded module", called == ["prefix"], str(called))
+
+    # Tools > JUN > Reload JUN Tools purges every jun_tools module
+    jun_tools.reload_all()
+    full_ui = __import__("jun_tools.tools.A00530_jun_renamer.ui", fromlist=["ui"])
+    check("Reload JUN Tools keeps the class", full_ui._types()[0] is ui._types()[0])
+    check("Reload JUN Tools keeps the settings object and values",
+          full_ui.settings() is settings and settings.get_editor_property("copy_prefix") == "MI_")
 
     unreal.EditorAssetLibrary.delete_directory(ROOT)
 

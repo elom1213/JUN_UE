@@ -67,7 +67,7 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 | Animation | Show All Bones | 눈 아이콘 > Bones > All Hierarchy 를 클릭 한 번으로 |
 | Cinematic | Cinematic Sequence Builder... | 씬 하나의 MSEQ / CSEQ / SSEQ 구조를 SOP 규격대로 일괄 생성 ([문서](Docs/Tools/A00520_CinematicSequenceBuilder.md)) |
 | Cinematic | Validate Cinematic Structure | 선택한 씬 폴더를 SOP 와 대조해 리포트만 낸다 (쓰기 없음) |
-| Asset | JUN Renamer... | 에셋 일괄 이름 변경 — Search/Replace · Prefix/Suffix · 앞뒤 글자 지우기 · 네이밍 규칙 · Base→Targets 이름 복사 ([문서](Docs/Tools/A00530_JUNRenamer.md)) |
+| Asset | JUN Renamer... | (도킹 탭, UE 5.4+) 에셋 일괄 이름 변경 — Search/Replace · Prefix/Suffix · 앞뒤 글자 지우기 · 네이밍 규칙 · Base→Targets 이름 복사 ([문서](Docs/Tools/A00530_JUNRenamer.md)) |
 | Developer | Reload JUN Tools | 에디터 재시작 없이 전체 파이썬 모듈 재로드 |
 
 로그는 **Output Log**의 `LogPython` 카테고리에서 확인한다.
@@ -89,17 +89,20 @@ JUN_UE/
 │  ├─ Plans/                     # 제작 계획서 · 참고 프로토타입
 │  ├─ Tools/                     # 툴별 문서
 │  └─ verify/                    # 헤드리스 검증 스크립트
-└─ Content/Python/
-   ├─ init_unreal.py             # 에디터 부팅 훅 (자동 실행)
-   └─ jun_tools/
-      ├─ __init__.py             # run() / reload_all()
-      ├─ config.py               # DEV_MODE
-      ├─ version.py
-      ├─ registry.py             # 툴 목록 — 새 툴은 여기 한 줄
-      ├─ menu.py                 # Tools > JUN 메뉴
-      └─ tools/A00NNN_<name>/
-         ├─ core.py              # 로직 (UI 무의존)
-         └─ ui.py                # 다이얼로그
+└─ Content/
+   ├─ A00530_jun_renamer/        # 툴 전용 에셋 (EUW_JUNRenamer - UE 5.4 로 저장)
+   ├─ Shared/                    # 여러 툴이 함께 쓰는 에셋
+   └─ Python/
+      ├─ init_unreal.py          # 에디터 부팅 훅 (자동 실행)
+      └─ jun_tools/
+         ├─ __init__.py          # run() / reload_all()
+         ├─ config.py            # DEV_MODE
+         ├─ version.py
+         ├─ registry.py          # 툴 목록 — 새 툴은 여기 한 줄
+         ├─ menu.py              # Tools > JUN 메뉴
+         └─ tools/A00NNN_<name>/
+            ├─ core.py           # 로직 (UI 무의존)
+            └─ ui.py             # UI (디테일 패널 · EUW 탭)
 ```
 
 ## 새 툴 추가

@@ -1,5 +1,29 @@
 # CHANGELOG — JUNTools
 
+## v01.05 (2026-11-20)
+
+### Changed
+- `A00530_jun_renamer` v01.01 — **모달 창 → 도킹 탭.** 창을 띄운 채 콘텐츠 브라우저를 클릭할 수 있다.
+  - Editor Utility Widget `Content/A00530_jun_renamer/EUW_JUNRenamer`(루트 = `DetailsView` 하나, UE 5.4 로 저장)를
+    `EditorUtilitySubsystem.spawn_and_register_tab()` 으로 띄우고, 기존 설정 오브젝트를 `DetailsView.set_object()` 로 꽂는다.
+    화면 구성 · 버튼 · 로직은 그대로다.
+  - **미리보기 자동 갱신** — `DetailsView.on_property_changed` 로 칸 편집이 끝나면 다시 계산한다.
+  - 메뉴를 다시 누르면 열린 탭을 앞으로 가져온다. 탭을 닫아도 입력값 · 목록은 남는다.
+  - EUW 를 못 찾거나 탭을 못 띄우면 v01.00 의 모달 창으로 대신 연다.
+  - 클래스 · 설정 오브젝트를 jun_tools 밖의 세션 모듈(`_jun_tools_session`)에 둔다 — `Reload JUN Tools` 뒤에도
+    탭이 붙잡은 오브젝트가 재인스턴싱되지 않는다(엔진 ensure 방지).
+  - 모달 시절 우회책 정리 — 열 때 선택 자동 불러오기는 **목록이 비어 있을 때만**, "창을 닫고 다시 열라" 안내 삭제.
+
+### Added
+- `Content/` 에셋 규칙 — 툴 전용은 `Content/A00NNN_<name>/`, 공용은 `Content/Shared/`, **UE 5.4 에서 저장**.
+- `Docs/Plans/A00530_JUNRenamer_EUW_Tab_Plan.md` — 작업 계획서.
+
+### Verified
+- `Docs/verify/verify_a00530_renamer.py` — **UE 5.4.4 · 5.7.4 헤드리스 43/43**. EUW 구조 · 탭 제목, `set_object`,
+  칸 편집 이벤트 → 미리보기, 모달 대체, DEV_MODE · `Reload JUN Tools` 뒤 클래스 · 오브젝트 유지. 에러 로그 0.
+  탭이 실제로 뜨는지 · 콘텐츠 브라우저를 누를 수 있는지는 헤드리스로 볼 수 없다(커맨드렛은 탭을 등록하지 않는다)
+  — 에디터에서 확인 필요(계획서 §6.2).
+
 ## v01.04 (2026-11-20)
 
 ### Added

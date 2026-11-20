@@ -4,10 +4,19 @@
 #
 # A00530 JUN_Renamer - UI.
 #
-# MANUEditor 의 Asset Renamer(C++ Slate 탭)를 파이썬 디테일 뷰 다이얼로그로 옮겼다.
-# JUN_UE 는 C++ 모듈이 없는 콘텐츠 플러그인이라 Slate 위젯을 만들 수 없다. 대신 A00510 과 같은
-# 방식 - 파이썬 uclass 를 `unreal.EditorDialog.show_object_details_view()` 로 띄우고,
-# `CallInEditor` 버튼으로 창을 닫지 않고 동작을 실행한다.
+# MANUEditor 의 Asset Renamer(C++ Slate 탭)를 파이썬으로 옮겼다.
+# JUN_UE 는 C++ 모듈이 없는 콘텐츠 플러그인이라 Slate 위젯을 만들 수 없다. 대신
+#   - 화면 = 파이썬 uclass(JUNRenamerSettings) 를 디테일 패널로 그린 것
+#   - 실행 = `CallInEditor` 메타를 단 인자 없는 UFUNCTION → 디테일 패널이 버튼으로 그린다
+#
+# ── 창: EUW 탭 (v01.01) ──────────────────────────────────────────────────────
+# v01.00 은 `EditorDialog.show_object_details_view()`(모달)로 띄워서, 창이 떠 있는 동안
+# 콘텐츠 브라우저를 누를 수 없었다. v01.01 부터는 Editor Utility Widget
+# `/JUNTools/A00530_jun_renamer/EUW_JUNRenamer` 를 **도킹 탭**으로 띄우고, 그 안의 `DetailsView`
+# 위젯에 같은 설정 오브젝트를 `set_object()` 로 꽂는다. 탭은 모달이 아니다.
+#   - EUW 는 UE 5.4 로 저장돼 있다. 5.5+ 에디터에서 다시 저장하면 5.4 에서 못 연다.
+#   - EUW 를 못 찾거나 탭을 못 띄우면(헤드리스 등) 예전 모달 창(show_modal)으로 대신 연다.
+#   - 계획서: Docs/Plans/A00530_JUNRenamer_EUW_Tab_Plan.md
 #
 # ── 세 섹션 ──────────────────────────────────────────────────────────────────
 #   Assets    : 대상 에셋 불러오기 (선택 · 선택 폴더 · /Game 전체) + 경로/이름 필터   ← 원본
@@ -15,18 +24,15 @@
 #               + Trim Front / Trim Rear 와 `-1 Front` / `-1 Rear` 버튼                ← A00330 Quick Rename
 #   Copy Name : Base 이름을 Targets 로 복사 (Prefix · Suffix · Search · Replace)        ← A00330 Copy Name
 #
-# ── 모달 창의 제약과 대응 ─────────────────────────────────────────────────────
-# 1) 창이 떠 있는 동안 콘텐츠 브라우저를 클릭할 수 없다(모달). 그래서
-#    - 창을 열 때 콘텐츠 브라우저 선택이 있으면 바로 Assets 로 불러온다.
-#    - 입력값과 목록은 창을 닫아도 남는다(_state). "Base 고르고 열기 → Base <- Selection → 닫기 →
-#      Targets 고르고 열기 → Targets <- Selection → Copy Name" 순서로 쓸 수 있다.
-#    - Base / Targets 는 에셋 선택 칸 배열이라 창 안에서 직접 고르고 끌어서 순서를 바꿀 수도 있다.
-# 2) 값을 고치는 순간을 파이썬이 알 수 없다(PostEditChangeProperty 를 못 잡는다). 그래서
-#    미리보기는 버튼(Preview / -1 Front ...)을 누를 때 다시 계산한다. Rename / Copy Name 은
-#    **실행 직전에 항상 다시 계산**하므로 오래된 미리보기로 바뀌는 일은 없다.
-#    배열이 바뀐 것은 디테일 뷰가 다음 틱에 스스로 다시 그린다(FPropertyNode::EnsureDataIsValid).
+# ── 미리보기 ──────────────────────────────────────────────────────────────────
+# 탭에서는 칸 편집이 끝날 때(Enter · 포커스 이동 · 체크) `DetailsView.on_property_changed` 가 와서
+# 미리보기를 저절로 다시 계산한다. 모달 대체 창에서는 이 이벤트가 없어 버튼(Preview ...)으로 계산한다.
+# Rename / Copy Name 은 어느 쪽이든 **실행 직전에 항상 다시 계산**한다.
+# 배열이 바뀐 것은 디테일 패널이 다음 틱에 스스로 다시 그린다(FPropertyNode::EnsureDataIsValid).
 
 import importlib
+import sys
+import types
 
 import unreal
 
@@ -34,43 +40,50 @@ from . import core, naming
 
 TITLE = "JUN Renamer"
 
-# 상태(입력값 · 불러온 에셋 목록)를 DEV_MODE 리로드 뒤에도 남기기 위해 이 툴 패키지 밖에 둔다.
-# jun_tools.run() 은 DEV_MODE 에서 `jun_tools.tools.A00530_jun_renamer` 만 비운다.
-import jun_tools.tools as _host  # noqa: E402
+# 탭으로 띄울 Editor Utility Widget. 루트 위젯이 변수로 노출된 `DetailsView` 하나다.
+EUW_PATH = "/JUNTools/A00530_jun_renamer/EUW_JUNRenamer"
+EUW_DETAILS_VIEW = "DetailsView"
 
-_state = _host.__dict__.setdefault("_A00530_STATE", {
-    "values": {},       # 프로퍼티 이름 → 값 (창을 다시 열 때 채운다)
-    "assets": [],       # 불러온 에셋 (unreal.AssetData)
-})
+# ── 세션 저장소 ───────────────────────────────────────────────────────────────
+# uclass · 설정 오브젝트 · 불러온 에셋 목록을 **jun_tools 밖의 모듈**에 둔다.
+#   - DEV_MODE 리로드(이 툴 패키지만 비움)와 `Reload JUN Tools`(jun_tools 전체를 비움) 둘 다 살아남는다.
+#   - uclass 를 다시 등록하면 탭이 붙잡고 있는 이전 인스턴스를 엔진이 재인스턴싱하며 PythonScriptPlugin
+#     ensure(`PySelf->ob_type == PyType`)가 뜬다 (실측 2026-11-20). 그래서 클래스는 세션당 1 회만 만든다.
+#   - 버튼 · 이벤트는 `_ui()` 로 지금 sys.modules 의 ui 모듈 함수를 부르므로 코드 수정은 리로드로 반영된다.
+#     프로퍼티 · 버튼 **구성**을 바꿨을 때만 에디터 재시작이 필요하다.
+_SESSION_MODULE = "_jun_tools_session"
 
-# 다이얼로그가 떠 있는 동안 설정 오브젝트가 GC 되지 않도록 붙잡아 둔다.
-_ALIVE = []
 
-# uclass / uenum 은 **에디터 세션당 한 번만** 등록한다 - 그래서 _host 에 둔다.
-# DEV_MODE 리로드마다 다시 등록하면 아직 GC 되지 않은 이전 인스턴스를 엔진이 재인스턴싱하면서
-# PythonScriptPlugin 의 ensure(`PySelf->ob_type == PyType`, PyWrapperObject.cpp)가 뜬다 (실측 2026-11-20).
-# 버튼은 `_ui()` 로 **지금 sys.modules 에 있는 ui 모듈**의 함수를 부르므로, 리로드한 코드가 그대로 쓰인다.
-# 프로퍼티 · 버튼 구성 자체를 바꿨을 때만 `Reload JUN Tools`(패키지 전체 리로드) 또는 에디터 재시작.
-_TYPES_KEY = "_A00530_TYPES"
+def _session():
+    module = sys.modules.get(_SESSION_MODULE)
+    if module is None:
+        module = types.ModuleType(_SESSION_MODULE)
+        sys.modules[_SESSION_MODULE] = module
+    return module.__dict__.setdefault("A00530", {
+        "types": None,       # (JUNRenamerSettings, JUNRenamerMatchMode)
+        "settings": None,    # 세션에 하나뿐인 설정 오브젝트 (탭과 모달 창이 같이 쓴다)
+        "assets": [],        # 불러온 에셋 (unreal.AssetData)
+        "callback": None,    # DetailsView.on_property_changed 에 묶는 함수 (중복 연결 방지용으로 고정)
+    })
+
+
+_state = _session()
 
 
 def _ui():
     """현재 로드된 ui 모듈. 클래스가 이전 모듈에서 만들어졌어도 최신 함수를 부른다."""
     return importlib.import_module(__name__)
 
-# 저장/복원하는 프로퍼티. 미리보기 배열은 매번 다시 계산하므로 뺀다.
-PERSISTENT = [
-    "use_path_filter", "path_filter", "name_filter",
-    "search", "replace", "match_mode", "case_sensitive", "prefix", "suffix",
-    "trim_front", "trim_rear", "use_naming_convention",
-    "remove_spaces", "collapse_double_underscores", "capitalize_words",
-    "base", "targets", "copy_prefix", "copy_suffix", "copy_search", "copy_replace",
-    "copy_case_sensitive",
-]
 
+# 처음 만들 때의 기본값 (uproperty 기본값과 다른 것만)
 DEFAULTS = {
     "copy_case_sensitive": True,   # A00330 Copy Name 기본값
 }
+
+# on_property_changed 로 어떤 미리보기를 다시 계산할지. 이름은 밑줄 · 대소문자를 무시하고 비교한다.
+COPY_PROPERTIES = {"base", "targets", "copyprefix", "copysuffix", "copysearch", "copyreplace",
+                   "copycasesensitive"}
+IGNORED_PROPERTIES = {"renamepreview", "copypreview", "assetsinfo"}
 
 
 def _button(category, label, tooltip):
@@ -149,8 +162,7 @@ def _build_types():
                              "Result of Preview Copy. Display only - editing it changes nothing.")
 
         # ── Assets 버튼 ───────────────────────────────────────────────────
-        @_button(A, "Load Selected", "Load the assets selected in the Content Browser "
-                                     "(the selection made before this window opened).")
+        @_button(A, "Load Selected", "Load the assets selected in the Content Browser.")
         def load_selected(self):
             _ui().load_selected(self)
 
@@ -217,11 +229,9 @@ def _build_types():
 
 
 def _types():
-    types = _host.__dict__.get(_TYPES_KEY)
-    if types is None:
-        types = _build_types()
-        _host.__dict__[_TYPES_KEY] = types
-    return types
+    if _state["types"] is None:
+        _state["types"] = _build_types()
+    return _state["types"]
 
 
 # ---------------------------------------------------------------------------
@@ -248,33 +258,6 @@ def _to_match_enum(value):
         if _to_int(member) == value:
             return member
     return enum_cls.ANYWHERE
-
-
-def _save_state(settings):
-    values = _state["values"]
-    for name in PERSISTENT:
-        value = _get(settings, name)
-        if name in ("base", "targets"):
-            value = [obj for obj in value]
-        elif name == "match_mode":
-            value = _to_int(value)
-        values[name] = value
-
-
-def _restore_state(settings):
-    values = dict(DEFAULTS)
-    values.update(_state["values"])
-    for name, value in values.items():
-        try:
-            if name == "match_mode":
-                value = _to_match_enum(value)
-            elif name in ("base", "targets"):
-                # 지운 에셋은 None 으로 남는다 - 빈 칸으로 보여 준다.
-                value = [obj for obj in value]
-            _set(settings, name, value)
-        except Exception as error:
-            core.warn("could not restore {}: {}".format(name, error))
-    _update_info(settings)
 
 
 def _rename_options(settings):
@@ -332,8 +315,7 @@ def _set_assets(settings, assets, source):
 def load_selected(settings):
     assets = core.selected_asset_data()
     if not assets:
-        core.warn("no assets selected in the Content Browser. Close this window, select assets, "
-                  "then open it again.")
+        core.warn("no assets selected in the Content Browser. Select assets first.")
         return
     _set_assets(settings, assets, "Content Browser selection")
 
@@ -341,8 +323,7 @@ def load_selected(settings):
 def load_folder(settings):
     folders = core.selected_folders()
     if not folders:
-        core.warn("no folder selected in the Content Browser. Close this window, select a folder, "
-                  "then open it again.")
+        core.warn("no folder selected in the Content Browser. Select a folder first.")
         return
     _set_assets(settings, core.assets_in_folders(folders), ", ".join(folders))
 
@@ -385,7 +366,6 @@ def preview_rename(settings):
                                       path_filter, name_filter)
     _set(settings, "rename_preview", [row.line() for row in rows])
     _update_info(settings, rows, shown)
-    _save_state(settings)
     if shown > len(rows):
         core.log("showing the first {} of {} assets. Use a filter to narrow the list."
                  .format(len(rows), shown))
@@ -451,8 +431,7 @@ def execute_rename(settings, confirm=True):
 def list_from_selection(settings, name):
     assets = core.selected_assets()
     if not assets:
-        core.warn("no assets selected in the Content Browser. Close this window, select assets, "
-                  "then open it again.")
+        core.warn("no assets selected in the Content Browser. Select assets first.")
         return
     _set(settings, name, assets)
     core.log("{} <- {} selected asset(s).".format(name.capitalize(), len(assets)))
@@ -485,7 +464,6 @@ def preview_copy(settings):
     _set(settings, "copy_preview", lines)
     for text in warnings:
         core.warn(text)
-    _save_state(settings)
     return rows
 
 
@@ -515,39 +493,119 @@ def execute_copy(settings, confirm=True):
 # 진입점
 # ---------------------------------------------------------------------------
 
-def make_settings():
-    """상태를 채운 설정 오브젝트를 만든다 (show() 와 검증 스크립트가 함께 쓴다)."""
-    settings_cls, _ = _types()
-    settings = settings_cls()
-    _restore_state(settings)
-    return settings
+def settings():
+    """세션에 하나뿐인 설정 오브젝트. 없으면 만든다."""
+    if _state["settings"] is None:
+        settings_cls, _ = _types()
+        obj = settings_cls()
+        for name, value in DEFAULTS.items():
+            _set(obj, name, value)
+        _update_info(obj)
+        _state["settings"] = obj
+    return _state["settings"]
+
+
+# 검증 스크립트 · 이전 버전과의 호환용 이름
+make_settings = settings
+
+
+def on_property_changed(property_name):
+    """DetailsView 에서 칸 편집이 끝났을 때. 바뀐 칸에 맞는 미리보기를 다시 계산한다."""
+    key = str(property_name).replace("_", "").lower()
+    if key in IGNORED_PROPERTIES:
+        return
+    obj = settings()
+    try:
+        if key in COPY_PROPERTIES:
+            preview_copy(obj)
+        else:
+            preview_rename(obj)
+    except Exception as error:
+        core.warn("preview failed: {}".format(error))
+
+
+def _callback():
+    """on_property_changed 에 묶는 함수. 세션에 하나로 고정해야 중복 연결을 막을 수 있다."""
+    if _state["callback"] is None:
+        def _dispatch(property_name):
+            _ui().on_property_changed(property_name)
+        _state["callback"] = _dispatch
+    return _state["callback"]
+
+
+def bind(details_view):
+    """DetailsView 의 칸 편집 이벤트에 미리보기 갱신을 연결한다. 이미 연결돼 있으면 그대로."""
+    delegate = details_view.get_editor_property("on_property_changed")
+    callback = _callback()
+    try:
+        if delegate.contains_callable(callback):
+            return False
+    except Exception:
+        pass
+    delegate.add_callable(callback)
+    return True
+
+
+def _details_view_in_tab():
+    """EUW 탭을 띄우고(이미 있으면 앞으로) 그 안의 DetailsView 를 돌려준다. 못 띄우면 None."""
+    blueprint = unreal.load_asset(EUW_PATH)
+    if blueprint is None:
+        core.warn("{} not found - opening the dialog window instead.".format(EUW_PATH))
+        return None
+
+    subsystem = unreal.get_editor_subsystem(unreal.EditorUtilitySubsystem)
+    # 같은 에셋이면 탭 ID 가 같아(`<경로>_ActiveTab`) 새 탭을 만들지 않고 기존 탭을 띄운다.
+    widget = subsystem.spawn_and_register_tab(blueprint)
+    if widget is None:
+        widget = subsystem.find_utility_widget_from_blueprint(blueprint)
+    if widget is None:
+        # 커맨드렛(헤드리스)은 탭을 등록하지 않는다.
+        return None
+
+    try:
+        details_view = widget.get_editor_property(EUW_DETAILS_VIEW)
+    except Exception:
+        details_view = None
+    if details_view is None:
+        core.warn("{} has no '{}' widget variable - opening the dialog window instead."
+                  .format(EUW_PATH, EUW_DETAILS_VIEW))
+    return details_view
 
 
 def show():
-    """JUN Renamer 창을 띄운다."""
-    settings = make_settings()
-    _ALIVE.append(settings)
+    """JUN Renamer 를 도킹 탭으로 연다. 탭을 못 띄우면 모달 창으로 연다. 반환: "tab" / "modal"."""
+    obj = settings()
 
-    try:
-        # 창이 떠 있는 동안은 콘텐츠 브라우저를 고를 수 없으니, 지금 선택을 바로 불러온다.
-        if core.selected_asset_data():
-            load_selected(settings)
-        else:
-            preview_rename(settings)
-        preview_copy(settings)
+    # 목록이 비어 있을 때만 지금 콘텐츠 브라우저 선택을 불러온다 (이미 불러온 목록은 덮지 않는다).
+    if not _state["assets"] and core.selected_asset_data():
+        load_selected(obj)
+    else:
+        preview_rename(obj)
+    preview_copy(obj)
 
-        options = unreal.EditorDialogLibraryObjectDetailsViewOptions()
-        options.set_editor_property("show_object_name", False)
-        options.set_editor_property("allow_search", False)
-        options.set_editor_property("allow_resizing", True)
-        options.set_editor_property("min_width", 760)
-        options.set_editor_property("min_height", 720)
+    details_view = _details_view_in_tab()
+    if details_view is not None:
+        details_view.set_object(obj)
+        bind(details_view)
+        core.log("opened. Preview updates when you finish editing a field.")
+        return "tab"
 
-        core.log("Preview recalculates when you press a button. Rename / Copy Name always "
-                 "recalculate first.")
-        unreal.EditorDialog.show_object_details_view(TITLE, settings, options)
+    show_modal(obj)
+    return "modal"
 
-        # OK / Cancel 모두 입력값은 남긴다. 실행은 창 안의 버튼으로만 한다.
-        _save_state(settings)
-    finally:
-        _ALIVE.remove(settings)
+
+def show_modal(obj=None):
+    """v01.00 의 모달 창. EUW 를 쓸 수 없을 때의 대체 경로."""
+    obj = obj or settings()
+
+    options = unreal.EditorDialogLibraryObjectDetailsViewOptions()
+    options.set_editor_property("show_object_name", False)
+    options.set_editor_property("allow_search", False)
+    options.set_editor_property("allow_resizing", True)
+    options.set_editor_property("min_width", 760)
+    options.set_editor_property("min_height", 720)
+
+    core.log("dialog window: preview recalculates when you press a button. Rename / Copy Name "
+             "always recalculate first.")
+    # OK / Cancel 모두 아무것도 실행하지 않는다. 입력값은 세션 오브젝트에 그대로 남는다.
+    unreal.EditorDialog.show_object_details_view(TITLE, obj, options)

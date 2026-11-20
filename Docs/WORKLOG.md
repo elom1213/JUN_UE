@@ -18,6 +18,27 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **모달 창 → 도킹 탭 (EUW)** (플러그인 v01.04→01.05, 툴 v01.00→01.01)
+- 요청: *"창이 떠 있는 동안 콘텐츠 브라우저를 클릭할 수 있어야 하고, 이게 제일 중요하다."*
+  v01.00 의 창은 `show_object_details_view()` 라 엔진 안에서 `EditorAddModalWindow()` 를 부르는 모달이었다.
+  파이썬에는 모덜리스 Slate 창을 만드는 API 가 없다.
+- **해법: EUW 탭 안의 `DetailsView` 위젯에 같은 설정 오브젝트를 꽂는다.** EUW 는 레벨 에디터의 일반 도킹 탭이라
+  모달이 아니고, `DetailsView` 는 다이얼로그와 같은 디테일 패널이라 설정 클래스 · `CallInEditor` 버튼 · 로직을 그대로 쓴다.
+  바뀐 건 `ui.py` 의 창을 띄우는 부분뿐이다. 계획서를 먼저 쓰고(`Docs/Plans/A00530_JUNRenamer_EUW_Tab_Plan.md`) 진행했다.
+- **EUW 는 사람이 만들어야 했다.** 파이썬으로 EUW 에셋은 만들 수 있지만 위젯 트리(`WidgetTree`)가 protected 라
+  위젯을 넣을 수 없다(실측). 사용자가 5.4 에디터에서 루트 `DetailsView` 하나짜리 EUW 를 만들었다.
+  첫 시도는 Grid Panel 에 이름만 `DetailsView` 였던 것을 헤드리스로 잡아냈다(템플릿 오브젝트를 `ObjectIterator` 로 훑기).
+- **5.4 하한** — 처음엔 5.7 로 저장된 EUW 였는데, 지원 범위를 5.4+ 로 잡고 5.4 에서 다시 만들었다.
+  기존 로직도 5.4 · 5.5 에서 31/31 이었다. 툴 전용 에셋은 `Content/A00530_jun_renamer/`, 공용은 `Content/Shared/` 로 규칙화.
+- **덤: 미리보기 자동 갱신.** `DetailsView.on_property_changed` 를 파이썬 콜백으로 받는다. 콜백은 세션에 하나로 고정해
+  중복 연결을 막고, 버튼처럼 최신 모듈로 디스패치한다.
+- **탭이 오브젝트를 붙잡는다** → `Reload JUN Tools` 가 클래스를 다시 등록하면 v01.00 에서 본 재인스턴싱 ensure 가 다시 난다.
+  클래스 · 오브젝트를 jun_tools 밖의 세션 모듈에 옮겨 두 종류의 리로드를 모두 견디게 했다. 대가는 프로퍼티 구성 변경 시 재시작.
+- **한 가지 오판을 바로잡았다** — `Plugins\JUN` 을 별도 복사본으로 보고 "복사 vs junction" 을 묻느라 몇 턴을 썼는데,
+  실제로는 이미 junction 이었다. 폴더 안 목록만 보고 폴더 자체의 `LinkType` 을 확인하지 않은 탓이다.
+- 검증: 5.4.4 · 5.7.4 헤드리스 **43/43**, 에러 로그 0. 탭이 뜨는지 · 콘텐츠 브라우저를 누를 수 있는지는
+  커맨드렛이 탭을 등록하지 않아 헤드리스로 볼 수 없다 → 에디터 확인 대기. #A00530
+
 > [!summary] `A00530_jun_renamer` **JUN Renamer — 사내 Asset Renamer 이식 + 마야 NamingTool 기능 추가** (플러그인 v01.03→01.04, 툴 v01.00)
 - 요청: MANUProject `Tools > Asset Renamer` 를 **JUN_Renamer** 로 옮기고, 마야 `A00330_NamingTool` 의
   **Quick Rename 앞/뒤 한 글자 지우기**와 **Copy Name(Base → Targets, Prefix · Set suffix · Search · Replace)** 를 더한다.
