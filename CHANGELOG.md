@@ -1,5 +1,18 @@
 # CHANGELOG — JUNTools
 
+## v01.09 (2026-11-20)
+
+### Changed
+- `A00530_jun_renamer` v01.05 — **설정 패널에서 위쪽 화면과 겹치는 항목 제거.**
+  - Rename 섹션: `Search` · `Replace` · `Match` · `Rename Preview` · `Preview` 버튼 제거.
+  - Assets 섹션: `Loaded` · `Name Filter` · `Load Selected` 버튼 제거.
+  - 지운 게 아니라 `Filter and Preview` 카테고리로 옮겼다 — 탭 패널(`categories_to_show = Assets, Rename`)에서는 숨고,
+    위쪽 화면이 없는 모달 대체 창에서만 보인다. (패널 필터는 버튼을 카테고리 단위로만 거를 수 있어 카테고리를 나눴다.)
+  - 설정 클래스 구성 변경 → **에디터 재시작 필요**. 구성 버전(`CLASS_LAYOUT`)을 두어 옛 클래스가 남아 있으면 Output Log 로 안내.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **71/71**, 에러 로그 0. 패널 모양은 에디터 확인 필요.
+
 ## v01.08 (2026-11-20)
 
 ### Added

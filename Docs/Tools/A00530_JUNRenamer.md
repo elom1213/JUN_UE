@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.04 (2026-11-20) — **Default / Copy Name 모드** · 공용 리스트 위젯 (2.3). v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
+- **버전**: v01.05 (2026-11-20) — 설정 패널에서 위쪽 화면과 겹치는 항목 제거 (2.3). v01.04 = **Default / Copy Name 모드** · 공용 리스트 위젯. v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -140,6 +140,18 @@ Base     Target     ->  New Name      Status
   **"TSL" 은 마야 `textScrollList` 의 이름이라 언리얼 용어가 아니다.** UMG 의 같은 역할은 `ListView` 인데 행 위젯
   에셋이 하나 더 필요해서, 이 위젯은 `ScrollBox` 에 행을 쌓는다. 사용법은 [../Widgets/AssetList.md](../Widgets/AssetList.md).
 - 모달 대체 창(EUW 를 못 띄울 때)에는 예전처럼 설정 패널에 Copy Name 섹션이 남아 있다.
+
+**Default 모드 설정 패널** (v01.05) — 위쪽 화면과 겹치는 항목은 뺐다.
+
+| 섹션 | 남은 것 | 위쪽 화면으로 옮긴 것 (패널에서 제거) |
+|------|---------|----------------------------------------|
+| Assets | Use Path Filter · Path Filter · `Load Folder` · `Load All /Game` · `Clear` | Loaded(→ 상태 줄 · `n/m matched`) · Name Filter · `Load Selected` |
+| Rename | Case Sensitive · Prefix · Suffix · Trim Front · Trim Rear · Use Naming Convention · Remove Spaces · Collapse Double Underscores · Capitalize Words · `-1 Front` · `-1 Rear` · `Reset Trim` · `Rename` | Search · Replace · Match · Rename Preview(→ 목록) · `Preview`(→ 자동 갱신) |
+
+- 뺀 항목은 지운 게 아니라 **`Filter and Preview` 섹션**으로 옮겼다 — 탭의 패널은 Assets · Rename 만 보여서 숨고,
+  EUW 를 못 띄울 때의 모달 창(위쪽 화면이 없다)에서만 보인다.
+- 설정 클래스 구성이 바뀌어서 **에디터를 재시작해야** 보인다. 재시작 없이 리로드만 하면 Output Log 에
+  `the settings panel layout changed in this version. Restart the editor to see it.` 가 한 번 뜬다.
 
 ## 3. 쓰는 법
 

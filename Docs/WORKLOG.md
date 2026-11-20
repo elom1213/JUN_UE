@@ -18,6 +18,16 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **설정 패널 정리 — 위쪽 화면과 겹치는 항목 제거** (플러그인 v01.08→01.09, 툴 v01.05)
+- 요청: Rename 섹션의 Preview 버튼 · Rename Preview · Search · Replace 와, Rename · Assets 에서 위쪽 화면과 겹치는 것을 없앤다.
+  겹치는 것을 더 찾아 Match · Loaded · Name Filter · Load Selected 도 함께 뺐다.
+- 먼저 **클래스를 안 고치고** 숨길 수 있는지 엔진 소스(`UDetailsView::GetIsPropertyVisible / GetIsRowVisible`)를 봤다 —
+  칸은 이름 또는 카테고리로 거를 수 있지만 **CallInEditor 버튼 줄은 카테고리 단위로만** 걸러진다. 그래서 겹치는 칸 · 버튼을
+  `Filter and Preview` 카테고리로 옮겼다. 탭에서는 숨고, 위쪽 화면이 없는 모달 대체 창에서는 그대로 보인다.
+- 클래스 구성이 바뀌면 재시작이 필요하다(세션당 1 회 등록). 깜빡하고 리로드만 하는 경우를 위해 `CLASS_LAYOUT` 을 두어
+  옛 클래스가 남아 있으면 한 번 안내한다.
+- 검증 5.4.4 · 5.7.4 **71/71**. #A00530
+
 > [!summary] `A00530_jun_renamer` **Default / Copy Name 모드 + 공용 리스트 위젯 `AssetList`** (플러그인 v01.07→01.08, 툴 v01.04)
 - 요청: Copy Name 을 더 간편하게 — 모드 선택, Base / Targets 리스트 두 개, Load · Copy Name · Sort Base · Sort Targets 버튼,
   접히는 Copy Name 섹션 제거. 리스트는 **마야에서 만들어 온 공용 위젯(TSL)처럼** 공용으로.

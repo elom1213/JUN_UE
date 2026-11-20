@@ -78,6 +78,12 @@ def _ui():
     return importlib.import_module(__name__)
 
 
+# 설정 클래스의 구성(프로퍼티 · 버튼 · 카테고리) 버전. 구성을 바꾸면 올린다 - 세션에 옛 클래스가 남아 있으면 재시작 안내.
+CLASS_LAYOUT = 2
+
+# 탭 위쪽 화면과 겹쳐서 탭의 설정 패널에서는 숨기는 항목들의 카테고리 (모달 창에서만 보인다)
+DIALOG_CATEGORY = "Filter and Preview"
+
 # 처음 만들 때의 기본값 (uproperty 기본값과 다른 것만)
 DEFAULTS = {
     "copy_case_sensitive": True,   # A00330 Copy Name 기본값
@@ -109,22 +115,25 @@ def _build_types():
         SUFFIX_ONLY = unreal.uvalue(naming.MATCH_SUFFIX, meta=dict(DisplayName="Suffix Only"))
 
     A, R, C = "Assets", "Rename", "Copy Name"
+    # 탭 위쪽 화면(ui_tab.py)과 겹치는 항목은 이 카테고리로 모은다. 탭의 설정 패널은 Assets · Rename 만
+    # 보여 주므로(PANEL_CATEGORIES) 탭에서는 숨고, EUW 를 못 띄울 때의 모달 창에서만 보인다 (v01.05).
+    D = DIALOG_CATEGORY
 
     @unreal.uclass()
     class JUNRenamerSettings(unreal.Object):
         # ── Assets ────────────────────────────────────────────────────────
-        assets_info = _prop(str, A, "Loaded", "How many assets are loaded. Display only.")
+        assets_info = _prop(str, D, "Loaded", "How many assets are loaded. Display only.")
         use_path_filter = _prop(bool, A, "Use Path Filter",
                                 "Only show assets whose path starts with Path Filter.")
         path_filter = _prop(str, A, "Path Filter", "e.g. /Game/MANU/CH/")
-        name_filter = _prop(str, A, "Name Filter",
+        name_filter = _prop(str, D, "Name Filter",
                             "Only show assets whose name, type or path contains this text "
                             "(ignores case). e.g. SK_, MT_, Character")
 
         # ── Rename ────────────────────────────────────────────────────────
-        search = _prop(str, R, "Search", "Text to find. Literal text, not a regular expression.")
-        replace = _prop(str, R, "Replace", "Text to put in its place. May be empty.")
-        match_mode = _prop(JUNRenamerMatchMode, R, "Match",
+        search = _prop(str, D, "Search", "Text to find. Literal text, not a regular expression.")
+        replace = _prop(str, D, "Replace", "Text to put in its place. May be empty.")
+        match_mode = _prop(JUNRenamerMatchMode, D, "Match",
                            "Anywhere = every occurrence. Prefix / Suffix Only = only at the "
                            "start / end of the name.")
         case_sensitive = _prop(bool, R, "Case Sensitive",
@@ -146,7 +155,7 @@ def _build_types():
                                             "Turn __ into _.")
         capitalize_words = _prop(bool, R, "Capitalize Words",
                                  "Split by _ and write each word as Xxxx.")
-        rename_preview = _prop(unreal.Array(str), R, "Rename Preview",
+        rename_preview = _prop(unreal.Array(str), D, "Rename Preview",
                                "Result of Preview. Display only - editing it changes nothing.")
 
         # ── Copy Name ─────────────────────────────────────────────────────
@@ -165,7 +174,7 @@ def _build_types():
                              "Result of Preview Copy. Display only - editing it changes nothing.")
 
         # ── Assets 버튼 ───────────────────────────────────────────────────
-        @_button(A, "Load Selected", "Load the assets selected in the Content Browser.")
+        @_button(D, "Load Selected", "Load the assets selected in the Content Browser.")
         def load_selected(self):
             _ui().load_selected(self)
 
@@ -195,7 +204,7 @@ def _build_types():
         def reset_trim(self):
             _ui().reset_trim(self)
 
-        @_button(R, "Preview", "Recalculate Rename Preview. Nothing is renamed.")
+        @_button(D, "Preview", "Recalculate Rename Preview. Nothing is renamed.")
         def preview_rename(self):
             _ui().preview_rename(self)
 
@@ -234,6 +243,11 @@ def _build_types():
 def _types():
     if _state["types"] is None:
         _state["types"] = _build_types()
+        _state["types_layout"] = CLASS_LAYOUT
+    elif _state.get("types_layout") != CLASS_LAYOUT and not _state.get("layout_warned"):
+        # 클래스는 세션당 한 번만 등록한다(재등록하면 엔진 ensure). 구성이 바뀐 코드를 리로드만 했다면 옛 구성이 남는다.
+        _state["layout_warned"] = True
+        core.warn("the settings panel layout changed in this version. Restart the editor to see it.")
     return _state["types"]
 
 
