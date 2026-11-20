@@ -18,6 +18,10 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] **`Tools > JUN` 을 Tools 메뉴 맨 위로** (플러그인 v01.13→01.14)
+- 요청: 어느 프로젝트에서든 JUN 툴이 Tools 메뉴 맨 위에 있게. `add_section(..., insert_type=ToolMenuInsertType.FIRST)` 한 줄.
+- 5.4 · 5.7 에 `FIRST` 있음 확인, `verify_menu.py` 5/5. 화면 순서는 에디터에서 확인 대기.
+
 > [!summary] `A00530_jun_renamer` **Rename 버튼을 Copy Name 버튼 자리로** (플러그인 v01.12→01.13, 툴 v01.09)
 - 요청: Rename 버튼 위치를 Copy Name 버튼과 같게. Default 페이지 맨 아래 오른쪽에 새 버튼, 설정 패널 버튼은 탭에서 숨김.
 - 설정 클래스 구성 변경 → 에디터 재시작 필요. 검증 5.4.4 · 5.7.4 **83/83**. #A00530

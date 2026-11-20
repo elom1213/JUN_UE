@@ -1,5 +1,16 @@
 # CHANGELOG — JUNTools
 
+## v01.14 (2026-11-20)
+
+### Changed
+- **`Tools > JUN` 섹션을 Tools 메뉴 맨 위로** — `menu.py` 가 섹션을 `ToolMenuInsertType.FIRST` 로 넣는다.
+  위치를 주지 않아 등록 순서대로 붙던 탓에 프로젝트마다 자리가 달랐다. 다른 플러그인도 `FIRST` 를 쓰면 그쪽과의
+  순서는 등록 순서를 따른다(엔진 기본 섹션보다는 늘 위). 반영: 에디터 재시작 또는 `Reload JUN Tools`.
+
+### Verified
+- 새 `Docs/verify/verify_menu.py` — UE 5.4.4 · 5.7.4 **5/5** (등록 · 재등록 에러 없음). 실제 순서는 에디터 화면 확인 필요
+  (커맨드렛은 메뉴를 그리지 않는다).
+
 ## v01.13 (2026-11-20)
 
 ### Changed

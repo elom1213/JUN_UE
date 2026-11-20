@@ -58,7 +58,7 @@ git submodule add https://github.com/elom1213/JUN_UE.git Plugins/JUNTools
 
 ## 사용
 
-상단 메뉴 **Tools > JUN**
+상단 메뉴 **Tools > JUN** (Tools 메뉴 맨 위 섹션)
 
 | 섹션 | 항목 | 설명 |
 |------|------|------|

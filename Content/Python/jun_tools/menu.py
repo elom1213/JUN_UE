@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Python Script by Ji Hun Park
-# last Update date : 2026-08-14
+# last Update date : 2026-11-20
 #
 # Tools > JUN 메뉴 등록.
 #
@@ -49,7 +49,10 @@ def register():
 
     # extend_menu 는 아직 만들어지지 않은 메뉴여도 안전하게 확장 지점을 잡아준다.
     tools_menu = menus.extend_menu(PARENT_MENU)
-    tools_menu.add_section(PARENT_SECTION, PARENT_SECTION)
+    # FIRST = Tools 메뉴 맨 위 (v01.14). 위치를 안 주면 등록 순서대로 붙어서 프로젝트마다 자리가 달라진다.
+    # 다른 플러그인도 FIRST 를 쓰면 그쪽과의 순서는 등록 순서를 따른다(엔진 기본 섹션보다는 늘 위).
+    tools_menu.add_section(PARENT_SECTION, PARENT_SECTION,
+                           insert_type=unreal.ToolMenuInsertType.FIRST)
 
     sub_menu = tools_menu.add_sub_menu(
         version.MENU_OWNER,
