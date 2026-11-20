@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.07 (2026-11-20) — Copy Name 모드 리스트의 `Sort Base` / `Sort Targets` 버튼 이름을 `Sort` 로 통일. v01.06 = 콤보(Mode · Match)의 고른 값이 검게 보이지 않던 문제 수정. v01.05 = 설정 패널에서 위쪽 화면과 겹치는 항목 제거 (2.3). v01.04 = **Default / Copy Name 모드** · 공용 리스트 위젯. v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
+- **버전**: v01.08 (2026-11-20) — 탭 맨 위 **공용 메뉴 바** `Help > Copy Tool Name` · `Copy Tool Name + Tabs` (2.4). v01.07 = Copy Name 모드 리스트의 `Sort Base` / `Sort Targets` 버튼 이름을 `Sort` 로 통일. v01.06 = 콤보(Mode · Match)의 고른 값이 검게 보이지 않던 문제 수정. v01.05 = 설정 패널에서 위쪽 화면과 겹치는 항목 제거 (2.3). v01.04 = **Default / Copy Name 모드** · 공용 리스트 위젯. v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -152,6 +152,17 @@ Base     Target     ->  New Name      Status
   EUW 를 못 띄울 때의 모달 창(위쪽 화면이 없다)에서만 보인다.
 - 설정 클래스 구성이 바뀌어서 **에디터를 재시작해야** 보인다. 재시작 없이 리로드만 하면 Output Log 에
   `the settings panel layout changed in this version. Restart the editor to see it.` 가 한 번 뜬다.
+
+### 2.4 메뉴 바 — Help (v01.08)
+
+탭 맨 위에 마야 툴과 같은 메뉴 바가 있다. 공용 위젯 `MenuBar` — 사용법 `Docs/Widgets/MenuBar.md`.
+
+| 항목 | 클립보드 |
+|------|----------|
+| `Help > Copy Tool Name` | `A00530_jun_renamer` |
+| `Help > Copy Tool Name + Tabs` | `A00530_jun_renamer / Default` 또는 `A00530_jun_renamer / Copy Name` (지금 모드) |
+
+결과는 메뉴 바 오른쪽과 Output Log 에 나온다. 드롭다운은 항목을 고르거나 `Help` 를 다시 누르면 닫힌다.
 
 ## 3. 쓰는 법
 

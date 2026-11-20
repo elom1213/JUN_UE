@@ -18,6 +18,12 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] **공용 메뉴 바 `MenuBar`** + A00530 적용 (플러그인 v01.11→01.12, 툴 v01.08)
+- 요청: 마야 툴처럼 툴마다 메뉴 바를 두고 툴 이름을 클립보드로 복사. 공용 UI 로 만들어 JUN Renamer 에 적용.
+- 조사: 언리얼 파이썬에 클립보드 함수 없음(5.4 전 클래스 훑음) → `ctypes` Windows 클립보드. UMG 에 메뉴 바 없음,
+  `MenuAnchor` 는 내용 위젯 블루프린트 에셋 필요 → 에셋 없이 `Overlay` 드롭다운.
+- 마야와 같은 항목 `Help > Copy Tool Name` · `Copy Tool Name + Tabs`(Renamer 는 모드를 탭으로 취급). 검증 5.4.4 · 5.7.4 **80/80**. #A00530 #widgets
+
 > [!summary] `A00530_jun_renamer` **리스트 정렬 버튼 이름을 `Sort` 로** (플러그인 v01.10→01.11, 툴 v01.07)
 - 요청: Copy Name 모드의 `Sort Base` / `Sort Targets` 를 `Sort` 로. 탭의 `sort_label` 지정을 빼서 `AssetList` 기본값 사용.
 - 모달 대체 창의 설정 패널 버튼은 두 리스트를 구분해야 해서 그대로 둠. 검증 5.4.4 · 5.7.4 **74/74**. #A00530

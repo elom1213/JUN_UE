@@ -7,6 +7,7 @@
 # EUW `EUW_JUNRenamer` 의 루트는 변수로 노출된 `VerticalBox`(이름 `Root`) 하나뿐이다. 화면은 실행 중에
 # 공용 헬퍼 `jun_tools.widgets.umg` 로 만든다 (에디터 스타일 위젯 · GC 에 안전한 콜백 - 그 모듈 머리말 참고).
 #
+#   Help v                         ← 공용 메뉴 바 (Copy Tool Name · Copy Tool Name + Tabs, v01.08)
 #   Mode: [Default v]
 #   ├ Default   : 원본 Asset Renamer 모양(필터 · Search/Replace · 목록) + 설정 패널(Assets · Rename 섹션만)
 #   └ Copy Name : Base / Targets 리스트(공용 AssetList) + Prefix · Suffix · Search · Replace · Case Sensitive
@@ -21,7 +22,7 @@ import importlib
 
 import unreal
 
-from jun_tools.widgets import asset_list, umg
+from jun_tools.widgets import asset_list, menu_bar, tool_menu, umg
 
 from . import naming
 
@@ -79,6 +80,7 @@ class TabView(object):
         self.row_keep = []      # Default 목록 행
         self.copy_row_keep = [] # Copy Name 미리보기 행
         self.root = None
+        self.menu_bar = None    # 공용 MenuBar (Help 메뉴)
         self.mode = None
         self.pages = None
         # Default
@@ -106,12 +108,13 @@ def build(root, settings):
     view = TabView(settings)
     view.root = root
     root.clear_children()
+    body = unreal.new_object(unreal.VerticalBox)
 
     # ── 모드 ──────────────────────────────────────────────────────────────
     view.mode = umg.combo(MODES, _ui()._state.get("mode", MODE_DEFAULT))
     umg.connect(view.keep, view.mode, "on_selection_changed",
                 lambda item, how: _ui_tab().on_mode(item))
-    umg.add(root, umg.row(umg.fixed(umg.text("Mode:", bold=True)), umg.fixed(view.mode)),
+    umg.add(body, umg.row(umg.fixed(umg.text("Mode:", bold=True)), umg.fixed(view.mode)),
             padding=(5, 4, 5, 2))
 
     view.pages = unreal.new_object(unreal.WidgetSwitcher)
@@ -119,8 +122,13 @@ def build(root, settings):
         slot = view.pages.add_child(page)
         slot.set_horizontal_alignment(unreal.HorizontalAlignment.H_ALIGN_FILL)
         slot.set_vertical_alignment(unreal.VerticalAlignment.V_ALIGN_FILL)
-    umg.add(root, view.pages, weight=1.0, padding=(0, 0, 0, 0))
+    umg.add(body, view.pages, weight=1.0, padding=(0, 0, 0, 0))
     view.pages.set_active_widget_index(view.mode.get_selected_index())
+
+    # ── 메뉴 바 (공용) - 모드를 마야의 "탭" 처럼 Copy Tool Name + Tabs 에 넣는다 ──
+    view.menu_bar = menu_bar.MenuBar(view.keep, tool_menu.tool_name_from_module(__name__),
+                                     tab_path=lambda: [str(view.mode.get_selected_option())])
+    umg.add(root, view.menu_bar.wrap(body), weight=1.0, padding=(0, 0, 0, 0))
     return view
 
 

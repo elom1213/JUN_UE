@@ -211,8 +211,9 @@ def main():
     settings.set_editor_property("prefix", "")
     tab_details = ui.fill_tab(FakeTabWidget(tab_root))
     tab_view = ui._state.get("tab")
-    check("tab content is built into Root (mode row + page switcher with 2 pages)",
-          tab_view is not None and tab_root.get_children_count() == 2
+    check("tab content is built into Root (menu bar overlay + page switcher with 2 pages)",
+          tab_view is not None and tab_root.get_children_count() == 1
+          and isinstance(tab_root.get_child_at(0), unreal.Overlay)
           and tab_view.pages.get_children_count() == 2, str(tab_root.get_children_count()))
     check("tab DetailsView shows the settings object",
           tab_details is not None and tab_details.get_object() == settings)
@@ -273,6 +274,33 @@ def main():
     check("settings panel hides the Copy Name section",
           [str(n) for n in tab_view.details_view.get_editor_property("categories_to_show")] == ["Assets", "Rename"])
     tab_view.mode.on_selection_changed.broadcast("Copy Name", unreal.SelectInfo.DIRECT)
+    tab_view.mode.set_selected_index(1)
+    # ── shared menu bar (v01.08): Help > Copy Tool Name / + Tabs ─────────────
+    from jun_tools.widgets import menu_bar, tool_menu
+    bar = tab_view.menu_bar
+    check("menu bar is the shared MenuBar with a Help menu",
+          isinstance(bar, menu_bar.MenuBar) and "Help" in bar.titles
+          and ("Help", "Copy Tool Name") in bar.items and ("Help", "Copy Tool Name + Tabs") in bar.items,
+          str(sorted(bar.items)))
+    check("tool name comes from the tool folder", bar.tool_name == "A00530_jun_renamer", str(bar.tool_name))
+    unreal.SystemLibrary.execute_console_command(None, "obj gc")
+    bar.titles["Help"].on_clicked.broadcast()
+    check("Help opens its dropdown (after GC)", bar.open_title == "Help"
+          and bar.dropdowns["Help"].get_visibility() == unreal.SlateVisibility.VISIBLE)
+    old_clip = tool_menu.get_clipboard_text()
+    bar.items[("Help", "Copy Tool Name")].on_clicked.broadcast()
+    clip_name = tool_menu.get_clipboard_text()
+    check("Copy Tool Name puts the tool folder name on the clipboard and closes the menu",
+          clip_name == "A00530_jun_renamer" and bar.open_title is None
+          and bar.dropdowns["Help"].get_visibility() == unreal.SlateVisibility.COLLAPSED, repr(clip_name))
+    bar.items[("Help", "Copy Tool Name + Tabs")].on_clicked.broadcast()
+    clip_tabs = tool_menu.get_clipboard_text()
+    check("Copy Tool Name + Tabs adds the current mode", clip_tabs == "A00530_jun_renamer / Copy Name",
+          repr(clip_tabs))
+    check("menu bar shows the result message", "Copied to clipboard" in str(bar.message.get_text()),
+          str(bar.message.get_text()))
+    if old_clip is not None:
+        tool_menu.copy_text_to_clipboard(old_clip)
     check("mode combo switches to the Copy Name page", tab_view.pages.get_active_widget_index() == 1
           and ui._state.get("mode") == 1)
     check("Copy Name page has Base / Targets lists",

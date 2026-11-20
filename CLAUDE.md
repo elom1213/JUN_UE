@@ -26,7 +26,7 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
 │       ├── init_unreal.py               플러그인 활성화 시 자동 실행
 │       └── jun_tools/
 │           ├── registry.py              툴 한 줄 등록
-│           ├── widgets/                 공용 EUW 위젯 (umg.py 헬퍼 · asset_list.py = 마야 TSL 대응)
+│           ├── widgets/                 공용 EUW 위젯 (umg.py 헬퍼 · asset_list.py = 마야 TSL · menu_bar.py = 마야 메뉴 바)
 │           └── tools/A00NNN_<name>/
 │               ├── core.py              로직
 │               └── ui.py                UI (디테일 패널 · EUW 탭)
@@ -44,7 +44,8 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
 모달이 아닌 창이 필요하면 EUW 루트에 변수로 노출한 `VerticalBox`(`Root`) 하나만 두고, 화면은 파이썬이 실행 중에
 `unreal.new_object(<위젯>)` + `add_child()` 로 조립한다 (A00530 `ui_tab.py` 참고). 설정 패널이 필요하면
 `DetailsView` 도 같은 방식으로 만들어 `set_object()`.
-**조립은 공용 헬퍼 `jun_tools/widgets/umg.py` 로, 에셋 리스트는 공용 `AssetList`(`widgets/asset_list.py`, 마야 TSL 대응)로.**
+**조립은 공용 헬퍼 `jun_tools/widgets/umg.py` 로, 에셋 리스트는 공용 `AssetList`(`widgets/asset_list.py`, 마야 TSL 대응)로,
+탭 맨 위 메뉴 바(Help > Copy Tool Name)는 공용 `MenuBar`(`widgets/menu_bar.py` + 공통 항목 `widgets/tool_menu.py`)로.**
 여러 툴이 쓸 만한 위젯은 툴 폴더가 아니라 `widgets/` 에 두고 `Docs/Widgets/<이름>.md` 에 사용법을 쓴다.
 - **`add_callable` 콜백은 파이썬이 그 위젯을 쥐고 있어야 GC 뒤에도 산다** (`FPyReferenceCollector` 는 파이썬이 참조하는
   오브젝트의 델리게이트만 따라간다). 지역 변수로 만들고 버린 버튼은 에디터 주기 GC 뒤 소리 없이 죽는다 → 리스트에 보관.

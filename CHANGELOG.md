@@ -1,5 +1,20 @@
 # CHANGELOG — JUNTools
 
+## v01.12 (2026-11-20)
+
+### Added
+- **공용 메뉴 바 `jun_tools/widgets/menu_bar.py`** + 공통 항목 레지스트리 `widgets/tool_menu.py` — 마야
+  `JUN_mod_menuBar_qt_v01` · `Framework/core/tool_menu.py` 대응. `Help > Copy Tool Name`(툴 폴더 이름) ·
+  `Copy Tool Name + Tabs`(+ 지금 탭/모드)를 클립보드로. 문서 `Docs/Widgets/MenuBar.md`.
+  - UMG 에 메뉴 바가 없고 `MenuAnchor` 는 내용 에셋이 필요해 `Overlay` 위 드롭다운으로 구현.
+  - 언리얼 파이썬에 클립보드 API 가 없어 `ctypes` 로 Windows 클립보드를 쓴다 (Windows 전용).
+- `A00530_jun_renamer` v01.08 — 탭 맨 위에 메뉴 바 적용. `+ Tabs` 는 지금 모드(`Default` / `Copy Name`)를 붙인다.
+- `umg.button(..., align="left")` — 메뉴 항목처럼 왼쪽 정렬 버튼.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **80/80** (메뉴 열기 · GC 뒤 동작 · 클립보드 실제 내용 · 결과 표시), 에러 로그 0.
+  드롭다운 위치 · 모양은 에디터 확인 필요.
+
 ## v01.11 (2026-11-20)
 
 ### Changed

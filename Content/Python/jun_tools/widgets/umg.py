@@ -105,10 +105,12 @@ def text(label, tint=None, bold=False):
     return widget
 
 
-def button(keep, label, callback, tooltip=""):
+def button(keep, label, callback, tooltip="", align="center"):
+    """align: "center" | "left" (메뉴 항목처럼 왼쪽 정렬)."""
     widget = unreal.new_object(unreal.EditorUtilityButton)
     slot = widget.add_child(text(label))
-    slot.set_horizontal_alignment(unreal.HorizontalAlignment.H_ALIGN_CENTER)
+    slot.set_horizontal_alignment(unreal.HorizontalAlignment.H_ALIGN_LEFT if align == "left"
+                                  else unreal.HorizontalAlignment.H_ALIGN_CENTER)
     slot.set_vertical_alignment(unreal.VerticalAlignment.V_ALIGN_CENTER)
     if tooltip:
         widget.set_tool_tip_text(tooltip)
