@@ -149,6 +149,14 @@ def normalise_content_path(path):
     return text
 
 
+def sync_browser(package):
+    """콘텐츠 브라우저를 그 에셋으로 옮겨 선택한다 (원본: 행 더블클릭 → SyncBrowserToAssets)."""
+    try:
+        unreal.EditorAssetLibrary.sync_browser_to_objects([package])
+    except Exception as error:
+        warn("could not show {} in the Content Browser: {}".format(package, error))
+
+
 def _is_renameable(asset_data):
     """원본 OnScanAllProjectAssets 의 걸러내기: 리디렉터 · 월드(레벨)는 제외."""
     name = class_name(asset_data)

@@ -18,6 +18,20 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **원본 Asset Renamer 모양 UI — 파이썬으로 조립하는 스파이크** (플러그인 v01.05→01.06, 툴 v01.02)
+- 요청: 모티브가 된 Asset Renamer 처럼 UI 를 바꿀 수 있는지 진단 → 진행. UI 는 **전부 영어**(원본은 한국어).
+- 진단(5.4 실측): 원본 요소가 모두 UMG 에 있고(EditableTextBox · CheckBox · ComboBoxString · Button · TextBlock ·
+  ListView/ScrollBox), 이벤트(`on_clicked` · `on_text_changed` · `on_text_committed` · `on_selection_changed` ·
+  ListView `bp_on_entry_initialized` / `bp_on_item_double_clicked`)를 파이썬에서 받을 수 있다.
+- 두 길 — A. 디자이너에 위젯 ~40 개 배치(+ 목록 행 위젯 BP) / B. **루트 `VerticalBox` 하나만 두고 파이썬이 실행 중에 조립**.
+  B 를 골랐다: 에셋 약속이 `Root` 하나, 화면 수정이 코드 diff 로 남고, 5.4 에셋을 다시 저장할 일이 없다.
+  위험은 "파이썬이 만든 위젯이 탭에 그려지는가" 인데 헤드리스로 볼 수 없어 **스파이크로 먼저 확인**한다.
+- 스파이크는 원본 모양 일부(필터 · Search/Replace · 콤보 · 열 제목 · 색 있는 목록) + 아래에 기존 설정 패널을 붙여
+  확인하는 동안에도 툴을 다 쓸 수 있게 했다. 두 화면이 같은 오브젝트를 읽고 써서 서로 맞춰진다.
+- 함정 하나: 위젯 델리게이트는 **기본값 인자까지 인자 수로 센다** — `lambda p=x:` 가 `Callable has the incorrect number
+  of arguments` 로 거부됐다. 클로저 팩토리로 해결.
+- 검증 5.4.4 · 5.7.4 **51/51**. 화면 확인 대기. #A00530
+
 > [!summary] `A00530_jun_renamer` **모달 창 → 도킹 탭 (EUW)** (플러그인 v01.04→01.05, 툴 v01.00→01.01)
 - 요청: *"창이 떠 있는 동안 콘텐츠 브라우저를 클릭할 수 있어야 하고, 이게 제일 중요하다."*
   v01.00 의 창은 `show_object_details_view()` 라 엔진 안에서 `EditorAddModalWindow()` 를 부르는 모달이었다.

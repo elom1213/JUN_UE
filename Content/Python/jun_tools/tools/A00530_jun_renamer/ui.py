@@ -42,6 +42,9 @@ TITLE = "JUN Renamer"
 
 # 탭으로 띄울 Editor Utility Widget. 루트 위젯이 변수로 노출된 `DetailsView` 하나다.
 EUW_PATH = "/JUNTools/A00530_jun_renamer/EUW_JUNRenamer"
+# v01.02: 루트 = VerticalBox `Root` - 화면은 ui_tab.py 가 실행 중에 조립한다.
+# v01.01 의 루트 `DetailsView` 에셋도 계속 받는다(그때는 설정 패널만 보인다).
+EUW_ROOT = "Root"
 EUW_DETAILS_VIEW = "DetailsView"
 
 # ── 세션 저장소 ───────────────────────────────────────────────────────────────
@@ -366,6 +369,11 @@ def preview_rename(settings):
                                       path_filter, name_filter)
     _set(settings, "rename_preview", [row.line() for row in rows])
     _update_info(settings, rows, shown)
+    if _state.get("tab") is not None:
+        try:
+            importlib.import_module(__package__ + ".ui_tab").show_rows(rows, shown, len(_state["assets"]))
+        except Exception as error:
+            core.warn("tab list update failed: {}".format(error))
     if shown > len(rows):
         core.log("showing the first {} of {} assets. Use a filter to narrow the list."
                  .format(len(rows), shown))
@@ -546,8 +554,20 @@ def bind(details_view):
     return True
 
 
+def _variable(widget, name):
+    try:
+        return widget.get_editor_property(name)
+    except Exception:
+        return None
+
+
 def _details_view_in_tab():
-    """EUW 탭을 띄우고(이미 있으면 앞으로) 그 안의 DetailsView 를 돌려준다. 못 띄우면 None."""
+    """EUW 탭을 띄우고(이미 있으면 앞으로) 화면을 채운 뒤 그 안의 DetailsView 를 돌려준다.
+
+    - 루트가 `Root`(VerticalBox) 면 ui_tab.build() 로 화면을 조립한다 (v01.02).
+    - 루트가 `DetailsView` 면 그것만 쓴다 (v01.01 에셋).
+    못 띄우면 None.
+    """
     blueprint = unreal.load_asset(EUW_PATH)
     if blueprint is None:
         core.warn("{} not found - opening the dialog window instead.".format(EUW_PATH))
@@ -561,14 +581,24 @@ def _details_view_in_tab():
     if widget is None:
         # 커맨드렛(헤드리스)은 탭을 등록하지 않는다.
         return None
+    return fill_tab(widget)
 
-    try:
-        details_view = widget.get_editor_property(EUW_DETAILS_VIEW)
-    except Exception:
-        details_view = None
+
+def fill_tab(widget):
+    """탭 위젯 안을 채우고 DetailsView 를 돌려준다. 검증 스크립트도 이 함수를 부른다."""
+    root = _variable(widget, EUW_ROOT)
+    if root is not None:
+        ui_tab = importlib.import_module(__package__ + ".ui_tab")
+        view = ui_tab.build(root, settings())
+        _state["tab"] = view
+        preview_rename(settings())
+        return view.details_view
+
+    _state["tab"] = None
+    details_view = _variable(widget, EUW_DETAILS_VIEW)
     if details_view is None:
-        core.warn("{} has no '{}' widget variable - opening the dialog window instead."
-                  .format(EUW_PATH, EUW_DETAILS_VIEW))
+        core.warn("{} has neither a '{}' nor a '{}' widget variable - opening the dialog window "
+                  "instead.".format(EUW_PATH, EUW_ROOT, EUW_DETAILS_VIEW))
     return details_view
 
 

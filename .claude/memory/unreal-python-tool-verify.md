@@ -60,6 +60,11 @@ def apply(self): ...
 → 헤드리스로는 `None`. EUW 구조 검사는 `ObjectIterator(unreal.Widget)` 로 `<EUW>_C:WidgetTree.*` 템플릿을 훑는다.
 **폴더가 junction 인지는 폴더 자체를 볼 것** — `Get-Item <폴더> | Select LinkType` (안 목록만 보고 복사본으로 오판한 적 있음).
 
+**위젯을 파이썬으로 조립 (5.4 실측)**: `unreal.new_object(unreal.TextBlock|Button|EditableTextBox|ComboBoxString|ScrollBox|DetailsView)`
++ `PanelWidget.add_child()` → 슬롯(`set_size(SlateChildSize)` · `set_padding` · `set_vertical_alignment`). EUW 엔
+변수 `Root`(VerticalBox) 만 두면 된다. ListView 델리게이트는 `bp_on_entry_initialized` 등 `bp_` 접두.
+**델리게이트 `add_callable` 은 기본값 인자도 인자 수로 센다** — `lambda p=x:` 거부 → 클로저 팩토리.
+
 **디테일 뷰 갱신**: CallInEditor 실행 후 강제 새로고침은 없지만 `FPropertyNode::EnsureDataIsValid()` 가 틱마다
 배열 크기 변화(`ArraySizeChanged`)를 감지해 다시 그린다 → 버튼에서 배열 프로퍼티를 갱신해 결과 표시로 쓸 수 있다.
 파이썬 uproperty 는 항상 `CPF_Edit` 이고 `EditConst` 를 줄 수 없다(메타로도 안 된다).

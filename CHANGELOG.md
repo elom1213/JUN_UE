@@ -1,5 +1,20 @@
 # CHANGELOG — JUNTools
 
+## v01.06 (2026-11-20)
+
+### Changed
+- `A00530_jun_renamer` v01.02 — **원본 Asset Renamer 모양 UI 스파이크** (화면 확인 대기).
+  - EUW 루트를 `VerticalBox`(`Root`) 로 바꾸고, 탭 안 화면을 `ui_tab.py` 가 **실행 중에 파이썬으로 조립**한다
+    (`unreal.new_object()` + `add_child()`). 에셋과 코드의 약속은 `Root` 하나.
+  - 위: 원본 모양 일부 — `Name Filter`(2 글자부터) · `n/m matched` · `Load Selected` · `Search` / `Replace` · 매칭 콤보 ·
+    상태 줄 · 열 제목(Type / Current Name / -> / New Name / Status) · 원본과 같은 색의 목록. 행을 누르면 콘텐츠 브라우저에서 찾는다.
+  - 아래: 기존 설정 패널(`DetailsView`, 파이썬 생성) — 스파이크 중에도 툴 전체 기능을 쓴다. 두 화면은 같은 설정 오브젝트를 공유.
+  - UI 문자열 전부 영어. v01.01 의 루트 `DetailsView` 에셋도 계속 받는다.
+
+### Verified
+- `verify_a00530_renamer.py` — **UE 5.4.4 · 5.7.4 헤드리스 51/51**, 에러 로그 0. 위젯 조립 · 목록 행 수 · 상태 줄 ·
+  입력칸 / 콤보 → 설정 → 목록, 설정 패널 → 입력칸 역방향. **화면에 실제로 그려지는지는 에디터 확인 필요.**
+
 ## v01.05 (2026-11-20)
 
 ### Changed

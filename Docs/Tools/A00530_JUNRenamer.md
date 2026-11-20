@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.01 (2026-11-20) — 모달 창 → **도킹 탭** (창을 띄운 채 콘텐츠 브라우저 사용)
+- **버전**: v01.02 (2026-11-20) — 원본 모양 UI 스파이크 (2.2). v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -68,6 +68,33 @@ v01.01 부터 이 디테일 패널을 **Editor Utility Widget 탭** 안에 띄�
   `Preview` / `Preview Copy` 버튼은 칸 밖의 변화(다른 곳에서 에셋 이름이 바뀜 등)를 반영할 때 쓴다.
 - **EUW 를 못 찾거나 탭을 못 띄우면** v01.00 의 모달 창으로 대신 연다(Output Log 에 경고).
   모달 창에서는 미리보기가 버튼으로만 갱신되고, 떠 있는 동안 콘텐츠 브라우저를 누를 수 없다.
+
+### 2.2 원본 모양 UI — 스파이크 (v01.02, 화면 확인 대기)
+
+원본 Asset Renamer 처럼 보이게 바꾸는 중이다. EUW 루트를 `VerticalBox`(`Root`) 하나로 바꾸고,
+**화면은 파이썬(`ui_tab.py`)이 실행 중에 조립**한다(`unreal.new_object()` + `add_child()`).
+에셋과 코드의 약속은 `Root` 하나뿐이라 화면을 고칠 때 에셋을 건드리지 않는다.
+
+지금 탭의 구성 (위 → 아래):
+
+```
+UI test (spike) - Python-built widgets. The panel below is the full tool.
+Name Filter: [Search asset names (e.g. SK_, MT_, Character)...]  4/4 matched  [Load Selected]
+Search: [Text to find]  Replace: [Text to replace]  [Anywhere v]
+4 assets loaded, 2 will be renamed
+Type        Current Name        ->   New Name        Status
+Material    XRock_A             ->   Rock_A          Ready          ← 행을 누르면 콘텐츠 브라우저에서 그 에셋을 찾는다
+...
+─ 기존 설정 패널 (DetailsView, 역시 파이썬으로 생성) - 툴 전체 기능 ─
+```
+
+- 위쪽 입력칸과 아래 설정 패널은 **같은 설정 오브젝트**를 쓴다. 한쪽을 고치면 다른 쪽도 맞춰진다.
+- `Name Filter` 는 원본처럼 2 글자부터 거른다(비우면 전부). Search / Replace 는 Enter · 포커스 이동 때 반영.
+- 목록 색은 원본과 같다 — 타입 열 연보라, Ready 행의 새 이름 초록, 바뀌지 않는 행 회색.
+- 스파이크의 목적은 **파이썬이 만든 위젯이 탭에 실제로 그려지는지** 확인하는 것이다(헤드리스로는 볼 수 없다).
+  확인되면 나머지(경로 필터 · 접두/접미 · 체크박스 · 아래쪽 버튼 · Trim · Copy Name)를 같은 방식으로 옮기고
+  설정 패널을 걷어낸다 — 그 전에 계획서를 쓴다.
+- UI 문자열은 전부 영어다(원본은 한국어였다).
 
 > ⚠️ **EUW 는 UE 5.4 에디터에서만 고치고 저장할 것.** 5.5 이상에서 저장하면 그 버전으로 다시 저장되어
 > 5.4 에서 열 수 없다. (코드는 실패하면 모달 창으로 대체되지만 탭은 쓸 수 없게 된다.)

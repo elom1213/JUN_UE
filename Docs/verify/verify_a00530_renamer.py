@@ -187,12 +187,57 @@ def main():
     check("EUW tab title", str(cdo.get_editor_property("tab_display_name")) == "JUN Renamer")
     templates = [w for w in unreal.ObjectIterator(unreal.Widget)
                  if "EUW_JUNRenamer_C:WidgetTree" in w.get_path_name()]
-    check("EUW root widget is DetailsView",
-          len(templates) == 1 and isinstance(templates[0], unreal.DetailsView)
-          and templates[0].get_name() == ui.EUW_DETAILS_VIEW and templates[0].get_parent() is None,
+    check("EUW root widget is VerticalBox 'Root'",
+          len(templates) == 1 and isinstance(templates[0], unreal.VerticalBox)
+          and templates[0].get_name() == ui.EUW_ROOT and templates[0].get_parent() is None,
           str([(type(w).__name__, w.get_name()) for w in templates]))
-    cdo.get_editor_property(ui.EUW_DETAILS_VIEW)
-    check("DetailsView exposed as variable", True)
+    cdo.get_editor_property(ui.EUW_ROOT)
+    check("Root exposed as variable", True)
+
+    # --- v01.02: Python-built tab content (spike) ------------------------------
+    class FakeTabWidget(object):
+        """Stands in for the spawned EUW: only the 'Root' variable is needed."""
+        def __init__(self, root):
+            self.root = root
+
+        def get_editor_property(self, name):
+            if name == ui.EUW_ROOT:
+                return self.root
+            raise AttributeError(name)
+
+    tab_root = unreal.new_object(unreal.VerticalBox)
+    settings.set_editor_property("name_filter", "")
+    settings.set_editor_property("search", "")
+    settings.set_editor_property("prefix", "")
+    tab_details = ui.fill_tab(FakeTabWidget(tab_root))
+    tab_view = ui._state.get("tab")
+    check("tab content is built into Root", tab_view is not None and tab_root.get_children_count() >= 6,
+          str(tab_root.get_children_count()))
+    check("tab DetailsView shows the settings object",
+          tab_details is not None and tab_details.get_object() == settings)
+    rows = ui.preview_rename(settings)
+    check("list shows one line per preview row", tab_view.rows.get_children_count() == len(rows),
+          "{} / {}".format(tab_view.rows.get_children_count(), len(rows)))
+    check("status line updated", "will be renamed" in str(tab_view.status.get_text()),
+          str(tab_view.status.get_text()))
+
+    tab_view.name_filter.on_text_changed.broadcast("Rock")
+    check("Name Filter box -> settings + list", settings.get_editor_property("name_filter") == "Rock"
+          and tab_view.rows.get_children_count() == 2, str(tab_view.rows.get_children_count()))
+    tab_view.search.on_text_committed.broadcast("Rock", unreal.TextCommit.ON_ENTER)
+    tab_view.replace.on_text_committed.broadcast("Stone", unreal.TextCommit.ON_ENTER)
+    check("Search / Replace boxes -> settings", settings.get_editor_property("search") == "Rock"
+          and settings.get_editor_property("replace") == "Stone")
+    tab_view.match_mode.on_selection_changed.broadcast("Prefix Only", unreal.SelectInfo.DIRECT)
+    check("match combo -> settings", ui._to_int(settings.get_editor_property("match_mode")) == 1)
+    settings.set_editor_property("search", "")
+    settings.set_editor_property("replace", "")
+    settings.set_editor_property("match_mode", ui._to_match_enum(0))
+    settings.set_editor_property("name_filter", "")
+    ui.preview_rename(settings)
+    check("panel edits flow back into the boxes", str(tab_view.search.get_text()) == ""
+          and tab_view.match_mode.get_selected_index() == 0)
+    ui._state["tab"] = None
 
     # a stand-alone DetailsView stands in for the one inside the tab
     view = unreal.new_object(unreal.DetailsView)

@@ -40,7 +40,11 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
 
 **에셋(.uasset) 규칙** — 툴 전용 에셋은 `Content/A00NNN_<name>/`(파이썬 툴 폴더와 같은 이름), 공용은 `Content/Shared/`.
 지원 하한이 **UE 5.4** 라서 에셋은 **5.4 에디터에서 만들고 저장**한다(5.5+ 에서 저장하면 5.4 에서 못 연다).
-모달이 아닌 창이 필요하면 EUW 루트에 `DetailsView` 위젯 하나를 두고 파이썬 설정 오브젝트를 `set_object()` 한다 (A00530 참고).
+모달이 아닌 창이 필요하면 EUW 루트에 변수로 노출한 `VerticalBox`(`Root`) 하나만 두고, 화면은 파이썬이 실행 중에
+`unreal.new_object(<위젯>)` + `add_child()` 로 조립한다 (A00530 `ui_tab.py` 참고). 설정 패널이 필요하면
+`DetailsView` 도 같은 방식으로 만들어 `set_object()`.
+- 위젯 델리게이트(`on_clicked.add_callable` 등)는 **기본값 인자까지 인자 수로 센다** — `lambda p=x: ...` 는
+  `Callable has the incorrect number of arguments` 로 거부된다. 값을 묶을 땐 클로저 팩토리를 쓴다.
 
 ## 2. 검증 — 헤드리스 커맨드렛
 
