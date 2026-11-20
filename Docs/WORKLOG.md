@@ -18,6 +18,10 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **리스트 정렬 버튼 이름을 `Sort` 로** (플러그인 v01.10→01.11, 툴 v01.07)
+- 요청: Copy Name 모드의 `Sort Base` / `Sort Targets` 를 `Sort` 로. 탭의 `sort_label` 지정을 빼서 `AssetList` 기본값 사용.
+- 모달 대체 창의 설정 패널 버튼은 두 리스트를 구분해야 해서 그대로 둠. 검증 5.4.4 · 5.7.4 **74/74**. #A00530
+
 > [!summary] `A00530_jun_renamer` **콤보 글자가 검게 안 보이던 문제** (플러그인 v01.09→01.10, 툴 v01.06)
 - `Mode:` 콤보에서 Default / Copy Name 을 골라도 글자가 검정이라 안 보였다(Match 콤보도 같음).
 - 엔진 소스: `UComboBoxString` 생성자가 `ForegroundColor = ItemStyle.TextColor`(게임 스타일 = 검정)로 정하고,

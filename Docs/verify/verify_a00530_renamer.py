@@ -292,6 +292,9 @@ def main():
     check("Load Selected fills Base / Targets (after GC)",
           [o.get_name() for o in settings.get_editor_property("base")] == ["Rock_A_01", "M_Base"]
           and names(settings.get_editor_property("targets")) == [rock_b_name, child_name])
+    sort_labels = [str(lst.buttons["sort"].get_content().get_text())
+                   for lst in (tab_view.base_list, tab_view.targets_list)]
+    check("both list sort buttons are labelled 'Sort' (v01.07)", sort_labels == ["Sort", "Sort"], sort_labels)
     tab_view.base_list.buttons["sort"].on_clicked.broadcast()
     check("Sort Base", [o.get_name() for o in settings.get_editor_property("base")] == ["M_Base", "Rock_A_01"])
     tab_view.targets_list.buttons["sort"].on_clicked.broadcast()

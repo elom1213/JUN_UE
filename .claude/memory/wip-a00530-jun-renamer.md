@@ -29,7 +29,7 @@ EUW 실패 시 모달로 대체. 계획서 `Docs/Plans/A00530_JUNRenamer_EUW_Tab
 
 **v01.03**: 사용자 스크린샷으로 탭이 실제로 뜨고 파이썬 위젯이 그려지는 것은 확인됨(글자가 커서 에디터 스타일로 교체,
 버린 버튼 콜백이 GC 로 죽던 것 수정). **v01.04**: `Mode:` 콤보로 Default / Copy Name. Copy Name = 공용 `AssetList`
-두 개(Base / Targets, `Sort Base` / `Sort Targets`) + 칸 + 미리보기 + Copy Name 버튼. 설정 패널은 `categories_to_show`
+두 개(Base / Targets, 각 리스트 아래 `Sort` — v01.07 에서 이름 통일) + 칸 + 미리보기 + Copy Name 버튼. 설정 패널은 `categories_to_show`
 로 Assets · Rename 만. 사용자는 공용 위젯을 마야 Framework 처럼 키우길 원한다 → `jun_tools/widgets/` · `Docs/Widgets/`.
 
 **미확인 (에디터 눈 확인 대기)**: v01.04 화면 배치(두 리스트 · 모드 전환), 리스트 행 클릭 시 콘텐츠 브라우저 이동.

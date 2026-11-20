@@ -56,7 +56,7 @@ base = asset_list.AssetList(
     on_changed=lambda items: ...,           # 버튼으로 항목이 바뀌면 불린다
     show_load=True, show_add=True, show_del=True, show_up=True, show_down=True,
     show_sort=True, show_reverse=False, show_clear=False,
-    load_label="Load Selected", sort_label="Sort Base",
+    load_label="Load Selected", sort_label="Sort",
     get_selection=None,                     # 기본: 콘텐츠 브라우저 선택 에셋
     on_row_clicked=None,                    # 기본: 콘텐츠 브라우저를 그 에셋으로
     label=None, tooltip=None,               # 기본: 에셋 이름 / 경로

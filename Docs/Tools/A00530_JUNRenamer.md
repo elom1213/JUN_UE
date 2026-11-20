@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.06 (2026-11-20) — 콤보(Mode · Match)의 고른 값이 검게 보이지 않던 문제 수정. v01.05 = 설정 패널에서 위쪽 화면과 겹치는 항목 제거 (2.3). v01.04 = **Default / Copy Name 모드** · 공용 리스트 위젯. v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
+- **버전**: v01.07 (2026-11-20) — Copy Name 모드 리스트의 `Sort Base` / `Sort Targets` 버튼 이름을 `Sort` 로 통일. v01.06 = 콤보(Mode · Match)의 고른 값이 검게 보이지 않던 문제 수정. v01.05 = 설정 패널에서 위쪽 화면과 겹치는 항목 제거 (2.3). v01.04 = **Default / Copy Name 모드** · 공용 리스트 위젯. v01.03 = 에디터 스타일 · Load Selected 수정. v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -127,7 +127,7 @@ Mode: [Copy Name v]
 │ │ SK_Hero                  │ │ │ ABP_Temp                │ │
 │ └──────────────────────────┘ │ └─────────────────────────┘ │
 │ [     Load Selected      ]   │ [     Load Selected     ]   │
-│ [Add][Del][Up][Down][Sort Base] [Add][Del][Up][Down][Sort Targets]
+│ [Add][Del][Up][Down][Sort]   │ [Add][Del][Up][Down][Sort]  │
 └───────────────────────────────────────────────────────────┘
 Prefix [   ]  Suffix [   ]
 Search [   ]  Replace [   ]  [x] Case Sensitive
@@ -199,7 +199,7 @@ Trim Front/Rear → Search/Replace → Prefix → Suffix → (수동 입력이 �
 1. `Mode:` 를 **Copy Name** 으로.
 2. 콘텐츠 브라우저에서 **Base** 에셋을 고르고 Base 리스트의 **`Load Selected`**. Targets 도 같은 방식.
    - `Add` = 중복 없이 뒤에 붙임 · `Del` / `Up` / `Down` = 고른 행(누르면 파랗게) 삭제 · 이동.
-   - 순서가 원하는 대로가 아니면 **`Sort Base`** / **`Sort Targets`**(이름순).
+   - 순서가 원하는 대로가 아니면 각 리스트 아래 **`Sort`**(이름순).
    - 행을 누르면 콘텐츠 브라우저가 그 에셋으로 옮겨 간다. 지워진 에셋은 빨간 `(None)`.
 3. `Prefix` / `Suffix` / `Search` / `Replace` 는 Enter(또는 포커스 이동), `Case Sensitive` 는 체크하면 미리보기가 바뀐다.
 4. **`Copy Name`** → 확인 창 → 실행. 바꿀 행(Ready)이 없으면 버튼이 꺼진다. 실행 뒤 리스트에 새 이름이 보인다.

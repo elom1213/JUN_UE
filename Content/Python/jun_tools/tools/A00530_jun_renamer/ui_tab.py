@@ -178,12 +178,10 @@ def _build_copy(view, settings):
     # Base / Targets 리스트 (공용 AssetList - 마야 TSL 대응)
     view.base_list = asset_list.AssetList(
         view.keep, "Base", items=list(settings.get_editor_property("base")),
-        on_changed=lambda items: _ui_tab().on_list_changed("base", items),
-        sort_label="Sort Base")
+        on_changed=lambda items: _ui_tab().on_list_changed("base", items))
     view.targets_list = asset_list.AssetList(
         view.keep, "Targets", items=list(settings.get_editor_property("targets")),
-        on_changed=lambda items: _ui_tab().on_list_changed("targets", items),
-        sort_label="Sort Targets")
+        on_changed=lambda items: _ui_tab().on_list_changed("targets", items))
     lists = umg.row(umg.stretch(view.base_list.widget), umg.stretch(view.targets_list.widget))
     umg.add(page, umg.panel(lists), weight=0.45, padding=(5, 2, 5, 2))
 

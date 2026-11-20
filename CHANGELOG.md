@@ -1,5 +1,15 @@
 # CHANGELOG — JUNTools
 
+## v01.11 (2026-11-20)
+
+### Changed
+- `A00530_jun_renamer` v01.07 — Copy Name 모드 리스트의 정렬 버튼 이름 `Sort Base` / `Sort Targets` → 둘 다 **`Sort`**
+  (버튼이 각 리스트 바로 아래에 있어 대상이 분명하다. 공용 `AssetList` 기본값을 그대로 쓴다).
+  모달 대체 창의 설정 패널 버튼은 두 리스트가 한 패널에 섞여 있어 `Sort Base` / `Sort Targets` 를 유지한다.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **74/74** (버튼 이름 검사 추가), 에러 로그 0.
+
 ## v01.10 (2026-11-20)
 
 ### Fixed
