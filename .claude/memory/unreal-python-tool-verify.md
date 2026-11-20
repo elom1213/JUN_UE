@@ -64,6 +64,13 @@ def apply(self): ...
 + `PanelWidget.add_child()` → 슬롯(`set_size(SlateChildSize)` · `set_padding` · `set_vertical_alignment`). EUW 엔
 변수 `Root`(VerticalBox) 만 두면 된다. ListView 델리게이트는 `bp_on_entry_initialized` 등 `bp_` 접두.
 **델리게이트 `add_callable` 은 기본값 인자도 인자 수로 센다** — `lambda p=x:` 거부 → 클로저 팩토리.
+**`add_callable` 콜백은 파이썬이 그 위젯을 쥐고 있어야 GC 뒤에도 산다** (2026-11-20 확정): 중계 오브젝트
+`UPythonCallableForDelegate` 는 `FPyReferenceCollector::AddReferencedObjectsFromMulticastDelegate` 가 **파이썬이 참조하는
+오브젝트의 델리게이트**에서만 지켜 준다. 버린 위젯의 콜백은 에디터 주기 GC 뒤 `is_bound()==False`. 헤드리스 GC 는
+`collect_garbage()`(다음 틱 예약 - 커맨드렛에선 안 돎)가 아니라 `execute_console_command(None, "obj gc")`.
+`add_function(obj, "ufunc")` 는 인자 없는 · FName · bool 델리게이트만 시그니처가 맞고, FText(const&) · TEnumAsByte 인자는 거부된다.
+**게임 스타일 주의**: `unreal.Button/EditableTextBox/ComboBoxString` 은 글꼴 24 게임 스타일 → `EditorUtility*` 판을 쓴다
+(Blutility, 생성자에서 `FDefaultStyleCache::GetEditor()`). TextBlock 은 에디터 판이 없음 → 에디터 입력칸 스타일 글꼴(9) 빌려 쓰기.
 
 **디테일 뷰 갱신**: CallInEditor 실행 후 강제 새로고침은 없지만 `FPropertyNode::EnsureDataIsValid()` 가 틱마다
 배열 크기 변화(`ArraySizeChanged`)를 감지해 다시 그린다 → 버튼에서 배열 프로퍼티를 갱신해 결과 표시로 쓸 수 있다.

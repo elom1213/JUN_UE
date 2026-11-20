@@ -43,6 +43,11 @@ JUN_UE/                                  = <Project>/Plugins/JUNTools/
 모달이 아닌 창이 필요하면 EUW 루트에 변수로 노출한 `VerticalBox`(`Root`) 하나만 두고, 화면은 파이썬이 실행 중에
 `unreal.new_object(<위젯>)` + `add_child()` 로 조립한다 (A00530 `ui_tab.py` 참고). 설정 패널이 필요하면
 `DetailsView` 도 같은 방식으로 만들어 `set_object()`.
+- **`add_callable` 콜백은 파이썬이 그 위젯을 쥐고 있어야 GC 뒤에도 산다** (`FPyReferenceCollector` 는 파이썬이 참조하는
+  오브젝트의 델리게이트만 따라간다). 지역 변수로 만들고 버린 버튼은 에디터 주기 GC 뒤 소리 없이 죽는다 → 리스트에 보관.
+  헤드리스로 확인할 땐 `collect_garbage()`(다음 틱 예약) 말고 `execute_console_command(None, "obj gc")`.
+- 파이썬으로 만드는 위젯은 **`EditorUtility*` 판**(Button · EditableTextBox · ComboBoxString · CheckBox · ScrollBox ...)을 쓴다.
+  일반 `unreal.Button` 등은 게임 스타일(글꼴 24)이다. TextBlock 은 에디터 판이 없어 글꼴을 직접 입힌다(A00530 `editor_font()`).
 - 위젯 델리게이트(`on_clicked.add_callable` 등)는 **기본값 인자까지 인자 수로 센다** — `lambda p=x: ...` 는
   `Callable has the incorrect number of arguments` 로 거부된다. 값을 묶을 땐 클로저 팩토리를 쓴다.
 

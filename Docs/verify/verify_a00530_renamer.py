@@ -237,6 +237,31 @@ def main():
     ui.preview_rename(settings)
     check("panel edits flow back into the boxes", str(tab_view.search.get_text()) == ""
           and tab_view.match_mode.get_selected_index() == 0)
+
+    # v01.03: editor-styled widgets and small editor font (was game style, font 24)
+    check("editor-styled widgets", isinstance(tab_view.load_selected, unreal.EditorUtilityButton)
+          and isinstance(tab_view.search, unreal.EditorUtilityEditableTextBox)
+          and isinstance(tab_view.match_mode, unreal.EditorUtilityComboBoxString)
+          and isinstance(tab_view.rows, unreal.EditorUtilityScrollBox))
+    size = tab_view.status.get_editor_property("font").get_editor_property("size")
+    check("editor font size (not 24)", 0 < size <= 12, str(size))
+
+    # v01.03: callbacks must survive a real garbage collection (Load Selected died in the editor)
+    loaded_before = len(ui._state["assets"])
+    ui._state["assets"] = []
+    original_selected = core.selected_asset_data
+    core.selected_asset_data = lambda: core.assets_in_folders([ROOT])
+    unreal.SystemLibrary.execute_console_command(None, "obj gc")
+    tab_view.load_selected.on_clicked.broadcast()
+    core.selected_asset_data = original_selected
+    check("Load Selected still works after GC", len(ui._state["assets"]) == loaded_before,
+          "{} / {}".format(len(ui._state["assets"]), loaded_before))
+    row_button = tab_view.rows.get_child_at(0)
+    check("list rows keep their click after GC", row_button is not None and row_button.on_clicked.is_bound())
+    tab_view.name_filter.on_text_changed.broadcast("Rock")
+    check("Name Filter still works after GC", settings.get_editor_property("name_filter") == "Rock")
+    settings.set_editor_property("name_filter", "")
+    ui.preview_rename(settings)
     ui._state["tab"] = None
 
     # a stand-alone DetailsView stands in for the one inside the tab

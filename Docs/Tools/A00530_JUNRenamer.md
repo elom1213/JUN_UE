@@ -2,7 +2,7 @@
 
 콘텐츠 브라우저 에셋의 **이름을 일괄 변경**한다. 미리보기로 결과를 먼저 보고 버튼으로 실행한다.
 
-- **버전**: v01.02 (2026-11-20) — 원본 모양 UI 스파이크 (2.2). v01.01 = 모달 창 → **도킹 탭**
+- **버전**: v01.03 (2026-11-20) — 스파이크 UI 를 에디터 스타일로 · Load Selected 수정 (2.2). v01.01 = 모달 창 → **도킹 탭**
 - **엔진**: UE **5.4 이상** (EUW 에셋이 5.4 로 저장돼 있다)
 - **메뉴**: `Tools > JUN > Asset > JUN Renamer...`
 - **모듈**: `jun_tools/tools/A00530_jun_renamer/`
@@ -78,7 +78,6 @@ v01.01 부터 이 디테일 패널을 **Editor Utility Widget 탭** 안에 띄�
 지금 탭의 구성 (위 → 아래):
 
 ```
-UI test (spike) - Python-built widgets. The panel below is the full tool.
 Name Filter: [Search asset names (e.g. SK_, MT_, Character)...]  4/4 matched  [Load Selected]
 Search: [Text to find]  Replace: [Text to replace]  [Anywhere v]
 4 assets loaded, 2 will be renamed
@@ -95,6 +94,16 @@ Material    XRock_A             ->   Rock_A          Ready          ← 행을 �
   확인되면 나머지(경로 필터 · 접두/접미 · 체크박스 · 아래쪽 버튼 · Trim · Copy Name)를 같은 방식으로 옮기고
   설정 패널을 걷어낸다 — 그 전에 계획서를 쓴다.
 - UI 문자열은 전부 영어다(원본은 한국어였다).
+- **v01.03** — 위젯을 에디터 스타일 판(`EditorUtilityButton` · `EditorUtilityEditableTextBox` ·
+  `EditorUtilityComboBoxString` · `EditorUtilityScrollBox`)으로 바꾸고 글자는 에디터 기본 글꼴(9)을 입혔다.
+  v01.02 는 게임용 기본 스타일이라 글자가 24 로 컸다. 필터 · 옵션 줄은 원본처럼 어두운 박스에 담았고,
+  목록 행은 투명 버튼(마우스를 올리면 살짝 밝아짐)이다.
+- **v01.03** — 위쪽 `Load Selected` 가 에디터에서 동작하지 않던 문제를 고쳤다. 원인은 아래 "함정".
+
+> **함정 — 파이썬 콜백이 GC 뒤 끊긴다.** `add_callable` 이 만드는 중계 오브젝트는 **파이썬이 참조를 쥔 위젯의
+> 델리게이트를 통해서만** GC 에서 지켜진다(`FPyReferenceCollector`). v01.02 는 그 버튼을 지역 변수로 만들고 버려서,
+> 에디터의 주기 GC(약 60 초) 뒤 연결이 소리 없이 끊겼다 — 먼저 친 `Search` 는 먹고 뒤에 친 `Replace` 가 안 먹은 것도 같은 이유.
+> 이제 콜백을 단 위젯은 모두 세션 동안 붙잡는다(`ui_tab.connect()`). 헤드리스 `obj gc` 로 재현 · 확인했다.
 
 > ⚠️ **EUW 는 UE 5.4 에디터에서만 고치고 저장할 것.** 5.5 이상에서 저장하면 그 버전으로 다시 저장되어
 > 5.4 에서 열 수 없다. (코드는 실패하면 모달 창으로 대체되지만 탭은 쓸 수 없게 된다.)

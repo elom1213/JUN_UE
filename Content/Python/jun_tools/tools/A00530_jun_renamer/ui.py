@@ -617,6 +617,8 @@ def show():
     if details_view is not None:
         details_view.set_object(obj)
         bind(details_view)
+        # add_callable 의 콜백은 파이썬이 그 위젯을 쥐고 있어야 GC 뒤에도 산다 (ui_tab.py 머리말 참고).
+        _state["details_view"] = details_view
         core.log("opened. Preview updates when you finish editing a field.")
         return "tab"
 

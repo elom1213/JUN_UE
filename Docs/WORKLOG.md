@@ -18,6 +18,19 @@ git 커밋 기록을 근거로 하루 작업을 요약한다. 최신 날짜가 �
 
 ## 2026-11-20 (오늘)
 
+> [!summary] `A00530_jun_renamer` **스파이크 UI 수정 — 에디터 스타일 · 끊기던 버튼** (플러그인 v01.06→01.07, 툴 v01.03)
+- 사용자 스크린샷(`.ref/renamer_01~02.png`): 글자가 아주 크고, 목록 열이 겹치고, 위쪽 `Load Selected` 가 안 눌렸다.
+- **글자 크기** — `unreal.TextBlock / Button / EditableTextBox` 는 게임용 기본 스타일(글꼴 24)이다. Blutility 에 에디터 스타일을
+  입힌 같은 위젯(`EditorUtility*`)이 있어 바꿨고, TextBlock 은 에디터 입력칸 스타일의 글꼴(크기 9)을 빌려 입혔다.
+  열 겹침은 행 버튼이 내용을 가운데로 줄였기 때문 → 버튼 슬롯을 가로 채움으로.
+- **버튼이 안 눌린 이유를 두 번 잘못 짚었다.** ① GC 가 중계 오브젝트를 지운다 → 헤드리스 `collect_garbage()` 로 반증된 듯했지만
+  그건 GC 를 다음 틱으로 예약만 한다. ② `obj gc`(즉시 GC)로도 살아 있었는데, 실험 코드가 버튼을 변수로 쥐고 있었기 때문.
+  파이썬 플러그인 소스(`FPyReferenceCollector::AddReferencedObjectsFromMulticastDelegate`)를 읽고서야 **"파이썬이 쥔 위젯의
+  델리게이트만 지켜 준다"** 는 조건을 찾았다. 쥔 버튼 / 버린 버튼 대조 실험에서 버린 쪽만 `bound: False` — 확정.
+  먼저 친 Search 는 먹고 나중에 친 Replace 가 안 먹은 스크린샷과도 맞는다.
+- 수정: 콜백을 단 위젯은 전부 세션에 붙잡는다(`ui_tab.connect()`). v01.01 부터의 설정 패널 실시간 미리보기 연결도 같은 문제라 함께 고침.
+- 검증 5.4.4 · 5.7.4 **56/56** (`obj gc` 뒤 콜백 생존 포함). 화면 모양은 에디터 확인 대기. #A00530
+
 > [!summary] `A00530_jun_renamer` **원본 Asset Renamer 모양 UI — 파이썬으로 조립하는 스파이크** (플러그인 v01.05→01.06, 툴 v01.02)
 - 요청: 모티브가 된 Asset Renamer 처럼 UI 를 바꿀 수 있는지 진단 → 진행. UI 는 **전부 영어**(원본은 한국어).
 - 진단(5.4 실측): 원본 요소가 모두 UMG 에 있고(EditableTextBox · CheckBox · ComboBoxString · Button · TextBlock ·

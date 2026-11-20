@@ -1,5 +1,19 @@
 # CHANGELOG — JUNTools
 
+## v01.07 (2026-11-20)
+
+### Fixed
+- `A00530_jun_renamer` v01.03 — **탭 위쪽 `Load Selected` 가 동작하지 않던 문제.** `add_callable` 의 중계 오브젝트는
+  파이썬이 참조를 쥔 위젯의 델리게이트를 통해서만 GC 에서 지켜지는데(`FPyReferenceCollector`), 버튼을 지역 변수로 버려
+  에디터 주기 GC 뒤 연결이 끊겼다. 콜백을 단 위젯을 전부 세션 동안 붙잡는다. 목록 행 · 설정 패널(실시간 미리보기)도 같은 처리.
+- **글자가 아주 컸던 문제.** 게임용 기본 스타일(글꼴 24) 위젯 → 에디터 스타일 위젯(`EditorUtilityButton` ·
+  `EditorUtilityEditableTextBox` · `EditorUtilityComboBoxString` · `EditorUtilityScrollBox`) + 에디터 기본 글꼴(9).
+  필터 · 옵션 줄을 원본처럼 어두운 박스에 담고, 목록 행은 투명 버튼(호버 시 살짝 밝아짐). 스파이크 안내 문구 삭제.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **56/56**, 에러 로그 0. 에디터 스타일 위젯 · 글꼴 크기 9 ·
+  **`obj gc` 뒤에도 Load Selected · 목록 행 · Name Filter 콜백이 살아 있음**. 화면 모양은 에디터 확인 필요.
+
 ## v01.06 (2026-11-20)
 
 ### Changed
