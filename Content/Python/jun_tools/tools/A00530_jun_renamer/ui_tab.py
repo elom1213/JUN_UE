@@ -101,6 +101,7 @@ class TabView(object):
         self.copy_status = None
         self.copy_rows = None
         self.copy_button = None
+        self.rename_button = None   # Default 페이지 아래 오른쪽 (Copy Name 버튼과 같은 자리)
 
 
 def build(root, settings):
@@ -177,6 +178,12 @@ def _build_default(view, settings):
     view.details_view.set_object(settings)
     view.keep.append(view.details_view)
     umg.add(page, view.details_view, weight=0.55, padding=(0, 0, 0, 0))
+
+    # 실행 - Copy Name 모드의 Copy Name 버튼과 같은 자리 (페이지 맨 아래 오른쪽)
+    view.rename_button = umg.button(view.keep, "Rename", _callback("on_rename"),
+                                    "Rename every Ready row and save. Asks first.")
+    umg.add(page, umg.row(umg.stretch(umg.text("")), umg.fixed(view.rename_button)),
+            padding=(5, 2, 5, 5))
     return page
 
 
@@ -306,6 +313,11 @@ def on_copy_case(checked):
     ui.preview_copy(ui.settings())
 
 
+def on_rename():
+    ui = _ui()
+    ui.execute_rename(ui.settings())
+
+
 def on_copy_name():
     ui = _ui()
     ui.execute_copy(ui.settings())
@@ -380,6 +392,7 @@ def show_rows(rows, shown, total):
     ready_count = sum(1 for row in rows if row.ready)
     view.match_count.set_text("{}/{} matched".format(shown, total))
     view.status.set_text("{} assets loaded, {} will be renamed".format(len(rows), ready_count))
+    view.rename_button.set_is_enabled(ready_count > 0)
     sync_fields(view)
 
 

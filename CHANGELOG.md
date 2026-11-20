@@ -1,5 +1,15 @@
 # CHANGELOG — JUNTools
 
+## v01.13 (2026-11-20)
+
+### Changed
+- `A00530_jun_renamer` v01.09 — **`Rename` 버튼을 Copy Name 버튼과 같은 자리로.** Default 페이지 맨 아래 오른쪽에
+  `Rename` 버튼(바꿀 행이 없으면 꺼짐). 설정 패널의 `Rename` 버튼은 `Filter and Preview` 카테고리로 옮겨 탭에서 숨김
+  (모달 대체 창에서만). 설정 클래스 구성 변경(`CLASS_LAYOUT` 3) → **에디터 재시작 필요**.
+
+### Verified
+- `verify_a00530_renamer.py` — UE 5.4.4 · 5.7.4 **83/83** (두 버튼 위치 · 켜짐 · GC 뒤 동작), 에러 로그 0.
+
 ## v01.12 (2026-11-20)
 
 ### Added

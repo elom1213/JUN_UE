@@ -79,7 +79,7 @@ def _ui():
 
 
 # 설정 클래스의 구성(프로퍼티 · 버튼 · 카테고리) 버전. 구성을 바꾸면 올린다 - 세션에 옛 클래스가 남아 있으면 재시작 안내.
-CLASS_LAYOUT = 2
+CLASS_LAYOUT = 3     # 3 = Rename 버튼을 탭 아래쪽(Copy Name 버튼 자리)으로 옮김 (툴 v01.09)
 
 # 탭 위쪽 화면과 겹쳐서 탭의 설정 패널에서는 숨기는 항목들의 카테고리 (모달 창에서만 보인다)
 DIALOG_CATEGORY = "Filter and Preview"
@@ -208,7 +208,8 @@ def _build_types():
         def preview_rename(self):
             _ui().preview_rename(self)
 
-        @_button(R, "Rename", "Rename every Ready row and save. Asks first.")
+        # 탭에서는 페이지 아래 오른쪽 버튼(Copy Name 과 같은 자리)이 대신한다 → 패널에서는 숨김 (v01.09)
+        @_button(D, "Rename", "Rename every Ready row and save. Asks first.")
         def execute_rename(self):
             _ui().execute_rename(self)
 

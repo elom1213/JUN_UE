@@ -269,6 +269,20 @@ def main():
     settings.set_editor_property("name_filter", "")
     ui.preview_rename(settings)
 
+    # --- v01.09: Rename button sits where the Copy Name button is (bottom right of the page) ---
+    def bottom_button(page):
+        last = page.get_child_at(page.get_children_count() - 1)
+        return last.get_child_at(last.get_children_count() - 1) if isinstance(last, unreal.HorizontalBox) else None
+    default_page, copy_page = tab_view.pages.get_child_at(0), tab_view.pages.get_child_at(1)
+    check("Rename button is at the bottom right of the Default page, like Copy Name",
+          bottom_button(default_page) == tab_view.rename_button
+          and bottom_button(copy_page) == tab_view.copy_button
+          and isinstance(tab_view.rename_button, unreal.EditorUtilityButton))
+    check("Rename button label / enabled while rows are Ready",
+          str(tab_view.rename_button.get_content().get_text()) == "Rename"
+          and tab_view.rename_button.get_is_enabled() == any(r.ready for r in ui.preview_rename(settings)))
+    check("Rename button keeps its click after GC", tab_view.rename_button.on_clicked.is_bound())
+
     # --- v01.04: Default / Copy Name modes + shared AssetList ------------------
     from jun_tools.widgets import asset_list
     check("settings panel hides the Copy Name section",
